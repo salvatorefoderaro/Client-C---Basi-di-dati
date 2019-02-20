@@ -52,13 +52,18 @@ int main(int argc, char **argv)
 	my_bool is_null[3];		// output value nullability
 	int status;
 
+	/* Inizilizzo la lista dei risultati, come lista dinamica. Alloco la memoria per la testa
+	della lista, allocando anche l'indirizzo per l'area di dati e settando a NULL il puntatore
+	all'elemento successivo.
+	
+	La dichiarazione della struttura si trova all'interno del file 'list.h' */
+
 	struct listaResult *lista = malloc(sizeof(listaResult));
 	lista->memory = malloc(sizeof(char)*256);
 	lista->next = NULL;
 
-
 	int i;
-	int num_fields;	// number of columns in result
+	int num_fields;	// Numero di colonne ottenuto come risultato, valore dianmico
 	MYSQL_FIELD *fields; // for result set metadata		
 	MYSQL_BIND *rs_bind; // for output buffers
 
@@ -84,6 +89,13 @@ int main(int argc, char **argv)
 	}
 	status = mysql_stmt_prepare(stmt, "call simpleProcedureCount(?, ?)", strlen("call simpleProcedureCount(?, ?)"));
 	test_stmt_error(stmt, status);
+
+	/* Procedo con la dichiarazione dei parametri di input e di output. 
+	L'unica differenza è che per i parametri di input devo giustamente indicare l'indirizzo
+	della variabile/buffer nel quale è contenuto il valore che voglio passare alla stored procedure.
+	
+	Nel caso dei parametri di out invece, passo l'indirizzo della variabile dove voglio che
+	il risultato venga memorizzato */
 
 	memset(ps_params, 0, sizeof(ps_params));
 
@@ -118,6 +130,7 @@ int main(int argc, char **argv)
 	// a single specific stored procedure is shown below, for
 	// the second stored procedure used in the application
 	// process results until there are no more
+
 	do {
 		/* the column count is > 0 if there is a result set */
 		/* 0 if the result is only the final status packet */
@@ -144,6 +157,8 @@ int main(int argc, char **argv)
 
 			// set up and bind result set output buffers
 			for (i = 0; i < num_fields; ++i) {
+
+				
 				while (lista->next != NULL){
 					lista = lista->next;
 				}
@@ -151,10 +166,13 @@ int main(int argc, char **argv)
 				struct listaResult *node = getNode();
 					lista->next = node;
 
+				/* Per ogni colonna delle tabelle dei risultati, vado a vedere il tipo del
+				risultato ottenuto. Utilizzando la lista collegata, imposto l'indirizzo
+				per ogni risultato in modo automatico. */
+
 				rs_bind[i].buffer_type = fields[i].type;
 				rs_bind[i].is_null = &is_null[i];
 				
-
 				switch (fields[i].type) {
 					case MYSQL_TYPE_VAR_STRING:
 							rs_bind[i].buffer = node->memory;
@@ -182,30 +200,29 @@ int main(int argc, char **argv)
 				if (status == 1 || status == MYSQL_NO_DATA)
 					break;
 
+				/* Avendo fatto prima l'associazione tra risultato ed indirizzo di 
+				memorizzazione, in questo caso vado a fare la print in "automatico",
+				l'unica accortezza deve essere nel Cast dell'indirizzo in base al tipo
+				di dato che ricevo e che quindi successivamente voglio andare a stampare. */
 				for (i = 0; i < num_fields; ++i) {
 					switch (rs_bind[i].buffer_type) {
-						case MYSQL_TYPE_VAR_STRING: // Not used in this stored procedure
+						case MYSQL_TYPE_VAR_STRING: 
 							if (*rs_bind[i].is_null)
 								printf(" val[%d] = NULL;", i);
 							else
 								printf(" val[%d] = %s;", i, (char*)rs_bind[i].buffer);
-															printf("Faccio la free?");
-
-							free(rs_bind[i].buffer);
+								free(rs_bind[i].buffer);
 							break;
-						case MYSQL_TYPE_LONG: // Not used in this stored procedure
+						case MYSQL_TYPE_LONG:
 							if (*rs_bind[i].is_null)
 								printf(" val[%d] = NULL;", i);
 							else
 								printf(" val[%d] = %d;", i, *(long*)rs_bind[i].buffer);
-															printf("Faccio la free?");
-
-							free(rs_bind[i].buffer);
+								free(rs_bind[i].buffer);
 							break;
 
 						default:
 							printf("ERROR: unexpected type (%d)\n", rs_bind[i].buffer_type);
-							printf("Faccio la free?");
 							free(rs_bind[i].buffer);
 					}
 				}
@@ -232,9 +249,7 @@ int main(int argc, char **argv)
 
 	if(!yesOrNo("Would you like to confirm the assignment?", 'y', 'n', true, false))
 		goto out;
-
-
-
+		
     out:
 	mysql_close(con);
 	return 0;
