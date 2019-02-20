@@ -1,0 +1,74 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/salvatore/Scaricati/C-examples/C-examples/C examples/example-3/inout.c
+unistd.h
+-
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+ctype.h
+-
+termios.h
+-
+sys/ioctl.h
+-
+pthread.h
+-
+signal.h
+-
+stdbool.h
+-
+
+/home/salvatore/Scaricati/C-examples/C-examples/C examples/example-3/jsmn.c
+jsmn.h
+/home/salvatore/Scaricati/C-examples/C-examples/C examples/example-3/jsmn.h
+
+/home/salvatore/Scaricati/C-examples/C-examples/C examples/example-3/jsmn.h
+stddef.h
+-
+
+/home/salvatore/Scaricati/C-examples/C-examples/C examples/example-3/list.h
+stdio.h
+-
+stdlib.h
+-
+
+/home/salvatore/Scaricati/C-examples/C-examples/C examples/example-3/main.c
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+mysql/mysql.h
+-
+list.h
+/home/salvatore/Scaricati/C-examples/C-examples/C examples/example-3/list.h
+program.h
+/home/salvatore/Scaricati/C-examples/C-examples/C examples/example-3/program.h
+
+/home/salvatore/Scaricati/C-examples/C-examples/C examples/example-3/parse.c
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+jsmn.h
+/home/salvatore/Scaricati/C-examples/C-examples/C examples/example-3/jsmn.h
+program.h
+/home/salvatore/Scaricati/C-examples/C-examples/C examples/example-3/program.h
+
+/home/salvatore/Scaricati/C-examples/C-examples/C examples/example-3/program.h
+stdbool.h
+-
+
