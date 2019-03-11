@@ -83,6 +83,47 @@ void getAssegnazioniPassate(){
 	printStatementResult(con, stmt);
 }
 
+void checkPostazioniDisponibili(){
+	MYSQL *con = getConnection();
+	MYSQL_STMT *stmt; // = mysql_init(NULL);
+
+	MYSQL_BIND ps_params[1];	
+	unsigned long length[1];	
+	int status;
+	int i;
+	int num_fields;	
+
+	stmt = mysql_stmt_init(con);
+	if (!stmt) {
+		printf("Could not initialize statement\n");
+		exit(1);
+	}
+
+	status = mysql_stmt_prepare(stmt, "CALL checkPostazioniDisponibili(?)", strlen("CALL checkPostazioniDisponibili(?)"));
+	test_stmt_error(stmt, status);
+	memset(ps_params, 0, sizeof(ps_params));
+	
+	char idDipendente[10];
+	printf("ID Dipendente: ");
+	getInput(10, idDipendente, false);
+	int matricola = atoi(idDipendente);
+
+	length[0] = sizeof(int);
+	ps_params[0].buffer_type = MYSQL_TYPE_LONG;
+	ps_params[0].buffer = &matricola;
+	ps_params[0].buffer_length = sizeof(int);
+	ps_params[0].length = &length[0];
+	ps_params[0].is_null = 0;
+
+	status = mysql_stmt_bind_param(stmt, ps_params);
+	test_stmt_error(stmt, status);
+
+	status = mysql_stmt_execute(stmt);
+	test_stmt_error(stmt, status);
+
+	printStatementResult(con, stmt);
+}
+
 void modificaMansioneDipendente(){
 	MYSQL *con = getConnection();
 	MYSQL_STMT *stmt; // = mysql_init(NULL);
@@ -99,7 +140,7 @@ void modificaMansioneDipendente(){
 		exit(1);
 	}
 
-	status = mysql_stmt_prepare(stmt, "CALL getAssegnazioniPassate(?)", strlen("CALL getAssegnazioniPassate(?)"));
+	status = mysql_stmt_prepare(stmt, "CALL editMansione(?, ?)", strlen("CALL editMansione(?, ?)"));
 	test_stmt_error(stmt, status);
 	memset(ps_params, 0, sizeof(ps_params));
 	
@@ -181,7 +222,7 @@ int printStatementResult(MYSQL *connection, MYSQL_STMT *statement){
 				status = mysql_stmt_fetch(stmt);
 
 				if (status == 1 || status == MYSQL_NO_DATA)
-					printf("Nessun risultato disponibile!");
+					printf("\nNessun risultato disponibile!\n");
 					break;
 				
 				for (i = 0; i < num_fields; ++i) {
@@ -219,7 +260,7 @@ int printStatementResult(MYSQL *connection, MYSQL_STMT *statement){
 			mysql_free_result(rs_metadata);
 			free(rs_bind);
 		} else {
-			printf("\nEnd of procedure output\n");
+			//printf("\nEnd of procedure output\n");
 		}
 
 		status = mysql_stmt_next_result(stmt);
