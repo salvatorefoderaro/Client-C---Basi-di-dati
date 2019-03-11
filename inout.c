@@ -50,7 +50,7 @@ char *getInput(unsigned int lung, char *stringa, bool hide) {
 		}
 	}
 	
-	// Acquisisce da tastiera al piï¿½ lung - 1 caratteri
+	// Acquisisce da tastiera al più lung - 1 caratteri
 	char c;
 	int i;
 	for(i = 0; i < lung; i++) {
@@ -74,7 +74,7 @@ char *getInput(unsigned int lung, char *stringa, bool hide) {
 	if(i == lung - 1)
 		stringa[i] = '\0';
 
-	// Se sono stati digitati piï¿½ caratteri, svuota il buffer della tastiera
+	// Se sono stati digitati più caratteri, svuota il buffer della tastiera
 	if(strlen(stringa) >= lung) {	
 		// Svuota il buffer della tastiera
 		do {
@@ -137,8 +137,8 @@ bool yesOrNo(char *domanda, char yes, char no, bool predef, bool insensitive) {
 		char c;
 		getInput(1, &c, false);
 			
-		// Controlla quale risposta ï¿½ stata data
-		if(c == '\0') { // getInput() non puï¿½ restituire '\n'!
+		// Controlla quale risposta è stata data
+		if(c == '\0') { // getInput() non può restituire '\n'!
 			return predef;
 		} else if(c == yes) {
 			return true;
@@ -151,3 +151,4 @@ bool yesOrNo(char *domanda, char yes, char no, bool predef, bool insensitive) {
 		}
 	}
 }
+
