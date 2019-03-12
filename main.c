@@ -4,6 +4,7 @@
 #include <mysql.h>
 #include "program.h"
 
+
 struct configuration conf;
 char nome[64];
 
@@ -13,7 +14,6 @@ void test_error(MYSQL * con, int status){
 	if (status) {
 		fprintf(stderr, "Error: %s (errno: %d)\n", mysql_error(con),
 			mysql_errno(con));
-		exit(1);
 	}
 }
 
@@ -21,12 +21,11 @@ void test_stmt_error(MYSQL_STMT * stmt, int status){
 	if (status) {
 		fprintf(stderr, "Error: %s (errno: %d)\n",
 			mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
-		exit(1);
 	}
 }
 
 int main(int argc, char **argv){
-	MYSQL *con = mysql_init(NULL);
+	for (int k = 0; k<10; k++){MYSQL *con = mysql_init(NULL);
 
     load_file(&config, "config.json");
 	parse_config();
@@ -40,9 +39,52 @@ int main(int argc, char **argv){
 		fprintf(stderr, "Connection error: %s\n", mysql_error(con));
 		exit(1);
 	}
+		int scelta;
+		char scelta_utente[10];
+		while(1){
+		printf("\n1 - Effettua l'accesso al sistema\n2 - Leggi tutti i messaggi presenti\n3 - Inserisci un nuovo messaggio\n4 - Elimina un messaggio\n5 - Effettua la registrazione\n6 - Effettua disconnessione\n7 - Termina esecuzione programma\n\nQuale operazione vuoi eseguire?\n");	
+		fgets(scelta_utente, 32, stdin);
+	scelta = atoi(scelta_utente);
+	switch (scelta) {
+	
+	case 1: // Login
+	flush_terminal_no_input
+	checkPostazioniDisponibili(con);
+		break;
+	
+	case 2: // Leggi tutti i messaggi presenti
+		flush_terminal_no_input
+		break;
+	
+	case 3: // Inserimento nuovo messaggio
+		flush_terminal_no_input
+		break;
+	
+	case 4: // Elimina messaggio
+		flush_terminal_no_input
+		break;
+	
+	case 5: // Registrazione
+		flush_terminal_no_input
+		break;
+	
+	case 6: // Disconnessione
+		flush_terminal_no_input
+		break;
+	
+	case 7: // Termina esecuzione programma
+		flush_terminal_no_input
+		return 0;
+        default:
+				flush_terminal_no_input
+                printf("\nInserisci un numero corretto per continuare!\n");
+				flushTerminal
+                break;
+		}
+}
 
 	getAssegnazioniPassate(con);
-
+	}
 	return 1;
 }
 
@@ -53,10 +95,11 @@ void printResults(MYSQL_STMT *statement, MYSQL *connessione){
 	MYSQL_FIELD *field;
 	MYSQL_RES *rs_metadata;
 	MYSQL_STMT *stmt = statement;
-	my_bool is_null[3];		// output value nullability
+	my_bool is_null[4];		
 	MYSQL_FIELD *fields;
 	int i, num_fields, status;
 	MYSQL_BIND *rs_bind; // for output buffers
+	MYSQL_TIME *date;
 
 	do {
 		num_fields = mysql_stmt_field_count(stmt);
@@ -86,12 +129,12 @@ void printResults(MYSQL_STMT *statement, MYSQL *connessione){
 
 			status = mysql_stmt_bind_result(stmt, rs_bind);
 			test_stmt_error(stmt, status);
-
+			
 			while (1) {
 				status = mysql_stmt_fetch(stmt);
-
-				if (status == 1 || status == MYSQL_NO_DATA)
+				if (status == 1 || status == MYSQL_NO_DATA){
 					break;
+				}
 
 				for (i = 0; i < num_fields; ++i) {
 					switch (rs_bind[i].buffer_type) {
@@ -99,7 +142,22 @@ void printResults(MYSQL_STMT *statement, MYSQL *connessione){
 							if (*rs_bind[i].is_null)
 								printf(" val[%d] = NULL;", i);
 							else
-								printf(" val[%d] = %s;", i, rs_bind[i].buffer);
+								printf(" val[%d] = %s;", i, (char*)rs_bind[i].buffer);
+							break;
+
+						case MYSQL_TYPE_LONG: // Not used in this stored procedure
+							if (*rs_bind[i].is_null)
+								printf(" val[%d] = NULL;", i);
+							else
+								printf(" val[%d] = %d;", i, *(int*)rs_bind[i].buffer);
+							break;
+
+						case MYSQL_TYPE_DATE: // Not used in this stored procedure
+							if (*rs_bind[i].is_null)
+								printf(" val[%d] = NULL;", i);
+							else
+								date = rs_bind[i].buffer;
+								printf(" val[%d] = %d-%d-%d;", i, date->day, date->month, date->year);
 							break;
 
 						default:
@@ -112,7 +170,7 @@ void printResults(MYSQL_STMT *statement, MYSQL *connessione){
 			mysql_free_result(rs_metadata);	// free metadata
 			free(rs_bind);	// free output buffers
 		} else {
-			printf("End of procedure output\n");
+
 		}
 
 		status = mysql_stmt_next_result(stmt);
@@ -120,98 +178,13 @@ void printResults(MYSQL_STMT *statement, MYSQL *connessione){
 			test_stmt_error(stmt, status);
 	} while (status == 0);
 
+	for (i = 0; i < num_fields; ++i) {
+		free(rs_bind[i].buffer);
+	}
+
 	mysql_stmt_close(stmt);
-	//printf("The returned token is: %s\n", token);
+		//printf("The returned token is: %s\n", token);
 	mysql_close(con);
+	flushTerminal
 	return;
 }
-
-/*void getAssegnazioniPassate(MYSQL *connessione){	
-	MYSQL *con = connessione;
-	MYSQL_STMT *stmt;
-	MYSQL_BIND ps_params[1];	// input parameter buffers
-	unsigned long length[1];	// Can do like that because all IN parameters have the same length
-	int status;
-
-	char nome[64];
-	printf("ID Dipendente: ");
-	getInput(64, nome, false);
-	length[0] = sizeof(int);
-	int idDipendente = atoi(nome);
-
-	stmt = mysql_stmt_init(con);
-	if (!stmt) {
-		printf("Could not initialize statement\n");
-		exit(1);
-	}
-
-	status = mysql_stmt_prepare(stmt, "CALL getAssegnazioniPassate(?)", strlen("CALL getAssegnazioniPassate(?)"));
-	test_stmt_error(stmt, status);
-
-	memset(ps_params, 0, sizeof(ps_params));
-
-	ps_params[0].buffer_type = MYSQL_TYPE_LONG;
-	ps_params[0].buffer = &idDipendente;;
-	ps_params[0].buffer_length = sizeof(int);
-	ps_params[0].length = &length[0];
-	ps_params[0].is_null = 0;
-
-	status = mysql_stmt_bind_param(stmt, ps_params);
-	test_stmt_error(stmt, status);
-
-	status = mysql_stmt_execute(stmt);
-	test_stmt_error(stmt, status);
-
-	printResults(stmt, con);
-}
-
-void editMansione(MYSQL *connessione){	
-	MYSQL *con = connessione;
-	MYSQL_STMT *stmt;
-	MYSQL_BIND ps_params[2];	// input parameter buffers
-	unsigned long length[2];	// Can do like that because all IN parameters have the same length
-	int status;
-
-	char nome[64];
-	printf("ID Dipendente: ");
-	getInput(64, nome, false);
-	length[0] = sizeof(int);
-	int idDipendente = atoi(nome);
-
-	char mansione[64];
-	printf("\nID Mansione: ");
-	getInput(64, mansione, false);
-	length[1] = sizeof(int);
-	int idMansione = atoi(mansione);
-
-	stmt = mysql_stmt_init(con);
-	if (!stmt) {
-		printf("Could not initialize statement\n");
-		exit(1);
-	}
-
-	status = mysql_stmt_prepare(stmt, "CALL editMansione(?, ?)", strlen("CALL editMansione(?, ?)"));
-	test_stmt_error(stmt, status);
-
-	memset(ps_params, 0, sizeof(ps_params));
-
-	ps_params[0].buffer_type = MYSQL_TYPE_LONG;
-	ps_params[0].buffer = &idDipendente;;
-	ps_params[0].buffer_length = sizeof(int);
-	ps_params[0].length = &length[0];
-	ps_params[0].is_null = 0;
-
-	ps_params[1].buffer_type = MYSQL_TYPE_LONG;
-	ps_params[1].buffer = &idMansione;;
-	ps_params[1].buffer_length = sizeof(int);
-	ps_params[1].length = &length[1];
-	ps_params[1].is_null = 0;
-
-	status = mysql_stmt_bind_param(stmt, ps_params);
-	test_stmt_error(stmt, status);
-
-	status = mysql_stmt_execute(stmt);
-	test_stmt_error(stmt, status);
-
-	printResults(stmt, con);
-}*/

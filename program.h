@@ -3,6 +3,9 @@
 #include <stdbool.h>
 #include <mysql.h> 
 
+#define flushTerminal printf("\nPremi invio per continuare..."); while(getchar() != '\n'); printf("\e[1;1H\e[2J");
+#define flush_terminal_no_input printf("\e[1;1H\e[2J");
+
 struct configuration {
 	char *host;
 	char *username;
@@ -24,3 +27,5 @@ extern void editMansione(MYSQL *connessione);
 extern void printResults(MYSQL_STMT *statement, MYSQL *connessione);
 extern void test_error(MYSQL * con, int status);
 extern void test_stmt_error(MYSQL_STMT * stmt, int status);
+extern void checkPostazioniDisponibili(MYSQL *connessione);
+extern void assignToPostazioneFree(MYSQL *connessione);
