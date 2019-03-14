@@ -29,4 +29,7 @@ extern void test_error(MYSQL * con, int status);
 extern void test_stmt_error(MYSQL_STMT * stmt, int status);
 extern void checkPostazioniDisponibili(MYSQL *connessione);
 extern void assignToPostazioneFree(MYSQL *connessione);
-extern void getUserType(MYSQL *connessione);
+extern int getUserType(MYSQL *connessione);
+extern int menuSettoreSpazi(MYSQL *connessione);
+extern int menuSettoreAmministrativo(MYSQL *connessione);
+extern int menuAltroDipendente(MYSQL *connessione);

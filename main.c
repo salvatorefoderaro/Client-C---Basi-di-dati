@@ -25,8 +25,8 @@ void test_stmt_error(MYSQL_STMT * stmt, int status){
 }
 
 int main(int argc, char **argv){
-	for (int k = 0; k<10; k++){MYSQL *con = mysql_init(NULL);
-
+	
+	MYSQL *con = mysql_init(NULL);
     load_file(&config, "config.json");
 	parse_config();
 
@@ -39,56 +39,40 @@ int main(int argc, char **argv){
 		fprintf(stderr, "Connection error: %s\n", mysql_error(con));
 		exit(1);
 	}
-		int scelta;
-		char scelta_utente[10];
-		while(1){
-		printf("\n1 - Effettua l'accesso al sistema\n2 - Leggi tutti i messaggi presenti\n3 - Chiudi connessione\n4 - Elimina un messaggio\n5 - Effettua la registrazione\n6 - Effettua disconnessione\n7 - Termina esecuzione programma\n\nQuale operazione vuoi eseguire?\n");	
-		fgets(scelta_utente, 32, stdin);
-	scelta = atoi(scelta_utente);
-	switch (scelta) {
-	
-	case 1: // Login
-	flush_terminal_no_input
-	//checkPostazioniDisponibili(con);
-	getUserType(con);
-		break;
-	
-	case 2: // Leggi tutti i messaggi presenti
-		flush_terminal_no_input
-		getAssegnazioniPassate(con);
-		break;
-	
-	case 3: // Inserimento nuovo messaggio
-		flush_terminal_no_input
-		mysql_close(con);
-		exit(1);
-		break;
-	
-	case 4: // Elimina messaggio
-		flush_terminal_no_input
-		break;
-	
-	case 5: // Registrazione
-		flush_terminal_no_input
-		break;
-	
-	case 6: // Disconnessione
-		flush_terminal_no_input
-		break;
-	
-	case 7: // Termina esecuzione programma
-		flush_terminal_no_input
-		return 0;
-        default:
-				flush_terminal_no_input
-                printf("\nInserisci un numero corretto per continuare!\n");
-				flushTerminal
-                break;
-		}
-}
 
-	getAssegnazioniPassate(con);
-	}
+	int scelta;
+	char scelta_utente[10];
+
+	while(1){
+		printf("\n1 - Effettua l'accesso al sistema\n2 - Termina programma\n\nScegli un opzione: ");	
+		fgets(scelta_utente, 32, stdin);
+		printf("\n\n");
+		scelta = atoi(scelta_utente);
+		switch (scelta) {
+		
+		case 1:
+			flush_terminal_no_input
+			int result = getUserType(con);
+			if (result == 1){
+				menuSettoreAmministrativo(con);
+			} else if (result == 2){
+				menuSettoreSpazi(con);
+			}
+			break;
+		
+		case 2: 
+			flush_terminal_no_input
+			mysql_close(con);
+			exit(1);
+			break;
+
+		default:
+			flush_terminal_no_input
+			printf("\nInserisci un numero corretto per continuare!\n");
+			flushTerminal
+			break;
+			}
+		}
 	return 1;
 }
 
@@ -192,12 +176,12 @@ void printResults(MYSQL_STMT *statement, MYSQL *connessione){
 	return;
 }
 
-void getUserType(MYSQL *connessione){
+int getUserType(MYSQL *connessione){
 
 	/* Questa funzione permette di effettuare il Login, e restituisce il tipo di utente
 	se il login va a buon fine. */
 
-	printf("\n        ***** loginUtente *****\n\n");
+	printf("\n        ***** Login dipendente *****\n\n");
 
 	MYSQL *con = connessione;
 	MYSQL_STMT *stmt;
@@ -249,7 +233,7 @@ void getUserType(MYSQL *connessione){
 	status = mysql_stmt_execute(stmt);
 	test_stmt_error(stmt, status);
 
-	if(status){ flushTerminal return; }
+	if(status){ flushTerminal return 0; }
 
 	if(mysql_stmt_field_count(stmt) == 0) {
 		fprintf(stderr, "Error while retrieving the stored procedure output\n");
@@ -283,4 +267,5 @@ void getUserType(MYSQL *connessione){
 	free(rs_bind);	// free output buffers
 	mysql_stmt_close(stmt);
 	flushTerminal
+	return *idDipendente2;
 }
