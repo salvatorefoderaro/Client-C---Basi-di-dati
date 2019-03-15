@@ -12,9 +12,7 @@ int menuSettoreSpazi(MYSQL *connessione){
 	while(1){
 
 		printf("\n     ***** Tipo dipendente: Settore spazi *****\n");	
-		printf("\n1 - Postazioni disponibili per l'utente\n
-		2 - Assegna dipendente ad una postazioni libera\n
-		3 - Termina esecuzione\n\nScegli un opzione: ");	
+		printf("\n1 - Postazioni disponibili per l'utente\n2 - Assegna dipendente ad una postazioni libera\n3 - Termina esecuzione\n\nScegli un opzione: ");	
 
 		fgets(scelta_utente, 32, stdin);
 		scelta = atoi(scelta_utente);
@@ -84,8 +82,6 @@ void checkPostazioniDisponibili(MYSQL *connessione){
 	test_stmt_error(stmt, status);
 
     if(status){ flushTerminal return; }
-
-	printf("AAAA: %ld", idRisultato);
 
     printf("\n\n     --> ID Postazione     \n\n");
 

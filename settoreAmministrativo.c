@@ -10,9 +10,7 @@ int menuSettoreAmministrativo(MYSQL* connessione){
 	char scelta_utente[10];
 	while(1){
 		printf("\n     ***** Tipo dipendente: Settore amministrativo *****\n");	
-		printf("\n1 - Visualizza assegnazioni passate dipendente\n
-		2 - Modifica mansione dipendente\n
-		3 - Termina esecuzione\n\nScegli un opzione: ");	
+		printf("\n1 - Visualizza assegnazioni passate dipendente\n2 - Modifica mansione dipendente\n3 - Termina esecuzione\n\nScegli un opzione: ");	
 		fgets(scelta_utente, 32, stdin);
 		scelta = atoi(scelta_utente);
 		switch (scelta) {

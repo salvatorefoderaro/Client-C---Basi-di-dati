@@ -19,8 +19,7 @@ void test_error(MYSQL * con, int status){
 
 void test_stmt_error(MYSQL_STMT * stmt, int status){
 	if (status) {
-		fprintf(stderr, "\nErrore: %s\n",
-			mysql_stmt_error(stmt), mysql_stmt_errno(stmt));
+		fprintf(stderr, "\nErrore: %s\n", mysql_stmt_error(stmt));
 	}
 }
 

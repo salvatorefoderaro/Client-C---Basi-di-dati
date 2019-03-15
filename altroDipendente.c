@@ -11,8 +11,7 @@ int menuAltroDipendente(MYSQL* connessione){
 	while(1){
 
 		printf("\n     ***** Tipo dipendente: Altro dipendente *****\n");	
-		printf("\n
-		3 - Termina esecuzione\n\nScegli un opzione: ");
+		printf("\n     3 - Termina esecuzione\n\nScegli un opzione: ");
 
 		fgets(scelta_utente, 32, stdin);
 		scelta = atoi(scelta_utente);
