@@ -9,19 +9,22 @@ int menuSettoreAmministrativo(MYSQL* connessione){
 	int scelta;
 	char scelta_utente[10];
 	while(1){
-		printf("\n     ***** Tipo utente: 2 *****\n");	
+		printf("\n     ***** Tipo dipendente: Settore amministrativo *****\n");	
+		printf("\n1 - Visualizza assegnazioni passate dipendente\n
+		2 - Modifica mansione dipendente\n
+		3 - Termina esecuzione\n\nScegli un opzione: ");	
 		fgets(scelta_utente, 32, stdin);
 		scelta = atoi(scelta_utente);
 		switch (scelta) {
 		
 		case 1: // Login
 			flush_terminal_no_input
-			int result = getUserType(con);
+			getAssegnazioniPassate(con);
 			break;
 		
 		case 2: // Leggi tutti i messaggi presenti
 			flush_terminal_no_input
-			getAssegnazioniPassate(con);
+			editMansione(con);
 			break;
 		
 		case 3: // Inserimento nuovo messaggio
@@ -29,10 +32,6 @@ int menuSettoreAmministrativo(MYSQL* connessione){
 			mysql_close(con);
 			exit(1);
 			break;
-		
-		case 4: // Termina esecuzione programma
-			flush_terminal_no_input
-			return 0;
 
 		default:
 				flush_terminal_no_input
