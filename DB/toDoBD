@@ -1,0 +1,1 @@
+# Aggiungere un qualche modo per poter fare il check sulla postazione (non attiva), per controllare l'assegnazione o meno ad un ufficio. Da implementare in quanto in questo modo posso permettere l'eliminazione di un ufficio, non dipendendo la postazione dall'ufficio stesso;

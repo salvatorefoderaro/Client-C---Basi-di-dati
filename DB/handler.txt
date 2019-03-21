@@ -1,0 +1,6 @@
+ 	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+ 	BEGIN
+	signal sqlstate '45000'
+		SET MESSAGE_TEXT = 'Errore nell esecuione dell\'\operazione!';
+    	ROLLBACK;
+	END;

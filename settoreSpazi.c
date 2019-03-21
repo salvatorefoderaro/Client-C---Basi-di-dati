@@ -43,6 +43,280 @@ int menuSettoreSpazi(MYSQL *connessione){
 }
 }
 
+void getPostazioni(MYSQL *connessione);
+
+void getPostazioniAttive(MYSQL *connessione);
+
+void makeScambioUser(MYSQL *connessione){
+	MYSQL *con = connessione;
+	MYSQL_STMT *stmt;
+	MYSQL_BIND ps_params[2];	// input parameter buffers
+	unsigned long length[2];	// Can do like that because all IN parameters have the same length
+	int status;
+
+	char nome[64];
+	printf("ID Dipendente 1: ");
+	getInput(64, nome, false);
+	length[0] = sizeof(int);
+	int idDipendente = atoi(nome);
+
+	char nome1[64];
+	printf("ID Dipendente 2: ");
+	getInput(64, nome1, false);
+	length[1] = sizeof(int);
+	int idDipendente1 = atoi(nome1);
+
+	stmt = mysql_stmt_init(con);
+	if (!stmt) {
+		printf("Could not initialize statement\n");
+		exit(1);
+	}
+
+	status = mysql_stmt_prepare(stmt, "CALL makeScambioUser(?, ?)", strlen("CALL makeScambioUser(?, ?)"));
+	test_stmt_error(stmt, status);
+
+	memset(ps_params, 0, sizeof(ps_params));
+
+	ps_params[0].buffer_type = MYSQL_TYPE_LONG;
+	ps_params[0].buffer = &idDipendente;
+	ps_params[0].buffer_length = sizeof(int);
+	ps_params[0].length = &length[0];
+	ps_params[0].is_null = 0;
+
+	ps_params[0].buffer_type = MYSQL_TYPE_LONG;
+	ps_params[0].buffer = &idDipendente1;
+	ps_params[0].buffer_length = sizeof(int);
+	ps_params[0].length = &length[1];
+	ps_params[0].is_null = 0;
+
+	int idRisultato = 0;
+
+	status = mysql_stmt_bind_param(stmt, ps_params);
+	test_stmt_error(stmt, status);
+
+	status = mysql_stmt_execute(stmt);
+	test_stmt_error(stmt, status);
+
+    if(status){ flushTerminal return; }
+
+    printf("\n\n     ---> Postazione inserita correttamente <---     \n\n");
+}
+
+void checkUserScambiabili(MYSQL *connessione){
+	MYSQL *con = connessione;
+	MYSQL_STMT *stmt;
+	MYSQL_BIND ps_params[2];	// input parameter buffers
+	unsigned long length[2];	// Can do like that because all IN parameters have the same length
+	int status;
+
+	char nome[64];
+	printf("ID Dipendente: ");
+	getInput(64, nome, false);
+	length[0] = sizeof(int);
+	int idDipendente = atoi(nome);
+
+	stmt = mysql_stmt_init(con);
+	if (!stmt) {
+		printf("Could not initialize statement\n");
+		exit(1);
+	}
+
+	status = mysql_stmt_prepare(stmt, "CALL getUserScambiabili(?)", strlen("CALL getUserScambiabili(?)"));
+	test_stmt_error(stmt, status);
+
+	memset(ps_params, 0, sizeof(ps_params));
+
+	ps_params[0].buffer_type = MYSQL_TYPE_LONG;
+	ps_params[0].buffer = &idDipendente;
+	ps_params[0].buffer_length = sizeof(int);
+	ps_params[0].length = &length[0];
+	ps_params[0].is_null = 0;
+
+	int idRisultato = 0;
+
+	status = mysql_stmt_bind_param(stmt, ps_params);
+	test_stmt_error(stmt, status);
+
+	status = mysql_stmt_execute(stmt);
+	test_stmt_error(stmt, status);
+
+    if(status){ flushTerminal return; }
+
+    printf("\n\n     ---> Postazione inserita correttamente <---     \n\n");
+}
+
+void inserisciPostazione(MYSQL *connessione){
+	MYSQL *con = connessione;
+	MYSQL_STMT *stmt;
+	MYSQL_BIND ps_params[2];	// input parameter buffers
+	unsigned long length[2];	// Can do like that because all IN parameters have the same length
+	int status;
+
+	char nome[64];
+	printf("ID Ufficio: ");
+	getInput(64, nome, false);
+	length[0] = sizeof(int);
+	int idDipendente = atoi(nome);
+
+	stmt = mysql_stmt_init(con);
+	if (!stmt) {
+		printf("Could not initialize statement\n");
+		exit(1);
+	}
+
+	status = mysql_stmt_prepare(stmt, "CALL insertNewPostazione(?)", strlen("CALL insertNewPostazione(?)"));
+	test_stmt_error(stmt, status);
+
+	memset(ps_params, 0, sizeof(ps_params));
+
+	ps_params[0].buffer_type = MYSQL_TYPE_LONG;
+	ps_params[0].buffer = &idDipendente;
+	ps_params[0].buffer_length = sizeof(int);
+	ps_params[0].length = &length[0];
+	ps_params[0].is_null = 0;
+
+	int idRisultato = 0;
+
+	status = mysql_stmt_bind_param(stmt, ps_params);
+	test_stmt_error(stmt, status);
+
+	status = mysql_stmt_execute(stmt);
+	test_stmt_error(stmt, status);
+
+    if(status){ flushTerminal return; }
+
+    printf("\n\n     ---> Postazione inserita correttamente <---     \n\n");
+}
+
+void eliminaPostazione(MYSQL* connessione){
+	MYSQL *con = connessione;
+	MYSQL_STMT *stmt;
+	MYSQL_BIND ps_params[2];	// input parameter buffers
+	unsigned long length[2];	// Can do like that because all IN parameters have the same length
+	int status;
+
+	char nome[64];
+	printf("ID Postazione: ");
+	getInput(64, nome, false);
+	length[0] = sizeof(int);
+	int idDipendente = atoi(nome);
+
+	stmt = mysql_stmt_init(con);
+	if (!stmt) {
+		printf("Could not initialize statement\n");
+		exit(1);
+	}
+
+	status = mysql_stmt_prepare(stmt, "CALL deletePostazione(?)", strlen("CALL deletePostazione(?)"));
+	test_stmt_error(stmt, status);
+
+	memset(ps_params, 0, sizeof(ps_params));
+
+	ps_params[0].buffer_type = MYSQL_TYPE_LONG;
+	ps_params[0].buffer = &idDipendente;
+	ps_params[0].buffer_length = sizeof(int);
+	ps_params[0].length = &length[0];
+	ps_params[0].is_null = 0;
+
+	int idRisultato = 0;
+
+	status = mysql_stmt_bind_param(stmt, ps_params);
+	test_stmt_error(stmt, status);
+
+	status = mysql_stmt_execute(stmt);
+	test_stmt_error(stmt, status);
+
+    if(status){ flushTerminal return; }
+
+    printf("\n\n     ---> Postazione eliminata correttamente <---     \n\n");
+}
+
+void disabilitaPostazione(MYSQL *connessione){
+	MYSQL *con = connessione;
+	MYSQL_STMT *stmt;
+	MYSQL_BIND ps_params[2];	// input parameter buffers
+	unsigned long length[2];	// Can do like that because all IN parameters have the same length
+	int status;
+
+	char nome[64];
+	printf("ID Postazione: ");
+	getInput(64, nome, false);
+	length[0] = sizeof(int);
+	int idDipendente = atoi(nome);
+
+	stmt = mysql_stmt_init(con);
+	if (!stmt) {
+		printf("Could not initialize statement\n");
+		exit(1);
+	}
+
+	status = mysql_stmt_prepare(stmt, "CALL disablePostazione(?)", strlen("CALL disablePostazione(?)"));
+	test_stmt_error(stmt, status);
+
+	memset(ps_params, 0, sizeof(ps_params));
+
+	ps_params[0].buffer_type = MYSQL_TYPE_LONG;
+	ps_params[0].buffer = &idDipendente;
+	ps_params[0].buffer_length = sizeof(int);
+	ps_params[0].length = &length[0];
+	ps_params[0].is_null = 0;
+
+	int idRisultato = 0;
+
+	status = mysql_stmt_bind_param(stmt, ps_params);
+	test_stmt_error(stmt, status);
+
+	status = mysql_stmt_execute(stmt);
+	test_stmt_error(stmt, status);
+
+    if(status){ flushTerminal return; }
+
+    printf("\n\n     ---> Postazione disabilitata correttamente <---     \n\n");
+}
+
+void abilitaPostazione(MYSQL *connessione){
+	MYSQL *con = connessione;
+	MYSQL_STMT *stmt;
+	MYSQL_BIND ps_params[2];	// input parameter buffers
+	unsigned long length[2];	// Can do like that because all IN parameters have the same length
+	int status;
+
+	char nome[64];
+	printf("ID Postazione: ");
+	getInput(64, nome, false);
+	length[0] = sizeof(int);
+	int idDipendente = atoi(nome);
+
+	stmt = mysql_stmt_init(con);
+	if (!stmt) {
+		printf("Could not initialize statement\n");
+		exit(1);
+	}
+
+	status = mysql_stmt_prepare(stmt, "CALL enablePostazione(?)", strlen("CALL enablePostazione(?)"));
+	test_stmt_error(stmt, status);
+
+	memset(ps_params, 0, sizeof(ps_params));
+
+	ps_params[0].buffer_type = MYSQL_TYPE_LONG;
+	ps_params[0].buffer = &idDipendente;
+	ps_params[0].buffer_length = sizeof(int);
+	ps_params[0].length = &length[0];
+	ps_params[0].is_null = 0;
+
+	int idRisultato = 0;
+
+	status = mysql_stmt_bind_param(stmt, ps_params);
+	test_stmt_error(stmt, status);
+
+	status = mysql_stmt_execute(stmt);
+	test_stmt_error(stmt, status);
+
+    if(status){ flushTerminal return; }
+
+    printf("\n\n     ---> Postazione abilitata correttamente <---     \n\n");
+}
+
 void checkPostazioniDisponibili(MYSQL *connessione){	
 	MYSQL *con = connessione;
 	MYSQL_STMT *stmt;

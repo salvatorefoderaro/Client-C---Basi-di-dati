@@ -1,0 +1,32 @@
+		# Settore spazi
+
+	// View
+- getPostazioni
+- getPostazioniAttive
+
+	// Operazioni sulla singola postaziine
+- disabilitaPostazione
+- abilitaPostazione
+- insertPostazione (Serve modo per non assegnare obbligatoriamente ad ufficio)
+- eliminaPostazione (Non serve booleano -> Capire se serve un booleano o meno, però come operazione è molto rara, quindi forse basta implementarlo tramite una select)
+
+	// Assegnazione a postazione disponibile
+- checkPostazioniDisponibili
+- assignToPostazioneFree
+
+	// Scambio con altro dipendente
+- checkUserScambiabili
+- makeScambioUser
+
+	// View
+- getUserDaTrasferire
+	
+		# Settore amministrativo
+
+- getAssegnazioniPassate
+- editMansione
+
+		# Utente normale
+
+- getInformazioniUfficio (getUserNumeroInterno -> Da cambiare il nome)
+- getAttualeLocazioneUtente
