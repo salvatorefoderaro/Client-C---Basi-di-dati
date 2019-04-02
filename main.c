@@ -64,11 +64,11 @@ int main(int argc, char **argv){
 				menuSettoreAmministrativo(con);
 			
 			} else if (result == 2){
-				load_file(&config, "config.json");
+				/*load_file(&config, "config.json");
 				parse_config();
 				if (!mysql_change_user(con,conf.username, conf.password, conf.database)){
 					fprintf(stderr, "Failed to change user.  Error: %s\n", mysql_error(con));
-				}
+				}*/
 				menuSettoreSpazi(con);
 
 			} else {
@@ -101,7 +101,7 @@ void printResults(MYSQL_STMT *statement, MYSQL *connessione){
 	bool is_null[4];		
 	MYSQL_FIELD *fields;
 	int i, num_fields, status;
-	MYSQL_BIND *rs_bind; // for output buffers
+	MYSQL_BIND *rs_bind;
 	MYSQL_TIME *date;
 
 	do {
@@ -132,7 +132,7 @@ void printResults(MYSQL_STMT *statement, MYSQL *connessione){
 
 			status = mysql_stmt_bind_result(stmt, rs_bind);
 			test_stmt_error(stmt, status);
-			
+			int counter = 0;
 			while (1) {
 				status = mysql_stmt_fetch(stmt);
 				if (status == 1 || status == MYSQL_NO_DATA){
@@ -167,9 +167,12 @@ void printResults(MYSQL_STMT *statement, MYSQL *connessione){
 							printf("ERROR: unexpected type (%d)\n", rs_bind[i].buffer_type);
 					}
 				}
+				counter = counter + 1;
 				printf("\n");
 			}
-
+			if (counter == 0){
+				printf("\nNessun risultato disponibile!\n");
+			}
 			mysql_free_result(rs_metadata);	// free metadata
 			free(rs_bind);	// free output buffers
 		} else {
@@ -256,6 +259,7 @@ int getUserType(MYSQL *connessione){
 	}
 			
 	rs_metadata = mysql_stmt_result_metadata(stmt);
+	
 	fields = mysql_fetch_fields(rs_metadata);
 
 	rs_bind = (MYSQL_BIND *) malloc(sizeof(MYSQL_BIND) * 1); // We know the number of parameters beforehand
