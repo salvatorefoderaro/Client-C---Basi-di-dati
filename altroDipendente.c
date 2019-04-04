@@ -24,7 +24,7 @@ int menuAltroDipendente(MYSQL* connessione){
 		
 		case 2: // Leggi tutti i messaggi presenti
 			flush_terminal_no_input
-			getAssegnazioniPassate(con);
+			// getAssegnazioniPassate(con);
 			break;
 		
 		case 3: // Inserimento nuovo messaggio

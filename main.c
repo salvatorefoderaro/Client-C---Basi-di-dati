@@ -34,7 +34,7 @@ int main(int argc, char **argv){
 		exit(1);
 	}
 
-	if (mysql_real_connect(con, conf.host, conf.username, conf.password, conf.database, conf.port, NULL, 0) == NULL) {
+	if (mysql_real_connect(con, conf.host, conf.username, conf.password, conf.database, conf.port, NULL, CLIENT_MULTI_STATEMENTS) == NULL) {
 		fprintf(stderr, "Connection error: %s\n", mysql_error(con));
 		exit(1);
 	}
@@ -56,11 +56,11 @@ int main(int argc, char **argv){
 			if (result == 1){
 				load_file(&config, "config1.json");
 				parse_config();
-				if (mysql_change_user(con,conf.username, conf.password, conf.database) != 0){
+				/*if (mysql_change_user(con,conf.username, conf.password, conf.database) != 0){
 					fprintf(stderr, "Failed to change user.  Error: %s\n", mysql_error(con));
 					flushTerminal
 					exit(-1);
-				}	
+				} */	
 				menuSettoreAmministrativo(con);
 			
 			} else if (result == 2){

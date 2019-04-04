@@ -1,8 +1,8 @@
 {
 	"host": "localhost",
-	"username": "rootdsadsadsadsadasdsa",
-	"password": "Foderaro95dsadsadsa",
+	"username": "amministrativo",
+	"password": "Frazzei95",
 	"port": 3306,
-	"database": "mydb31wqwe"
+	"database": "mydb"
 }
 
