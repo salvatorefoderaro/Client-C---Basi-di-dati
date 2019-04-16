@@ -51,8 +51,8 @@ void getAssegnazioniPassate(MYSQL *connessione){
 
 	MYSQL *con = connessione;
 	MYSQL_STMT *stmt;
-	MYSQL_BIND ps_params[1];	// input parameter buffers
-	unsigned long length[1];	// Can do like that because all IN parameters have the same length
+	MYSQL_BIND ps_params[1];	
+	unsigned long length[1];
 	int status;
 
 	char nome[64];

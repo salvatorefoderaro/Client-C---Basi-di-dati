@@ -88,7 +88,7 @@ int main(int argc, char **argv){
 			break;
 			}
 		}
-	return 1;
+		return 1;
 }
 
 void printResults(MYSQL_STMT *statement, MYSQL *connessione){
@@ -141,21 +141,28 @@ void printResults(MYSQL_STMT *statement, MYSQL *connessione){
 
 				for (i = 0; i < num_fields; ++i) {
 					switch (rs_bind[i].buffer_type) {
-						case MYSQL_TYPE_VAR_STRING: // Not used in this stored procedure
+						case MYSQL_TYPE_VAR_STRING: 
 							if (*rs_bind[i].is_null)
 								printf(" val[%d] = NULL;", i);
 							else
 								printf(" val[%d] = %s;", i, (char*)rs_bind[i].buffer);
 							break;
 
-						case MYSQL_TYPE_LONG: // Not used in this stored procedure
+						case MYSQL_TYPE_TINY:
+							if (*rs_bind[i].is_null)
+								printf(" val[%d] = NULL;", i);
+							else
+								printf(" val[%d] = %d;", i, *(bool*)rs_bind[i].buffer);
+							break;
+
+						case MYSQL_TYPE_LONG:
 							if (*rs_bind[i].is_null)
 								printf(" val[%d] = NULL;", i);
 							else
 								printf(" val[%d] = %d;", i, *(int*)rs_bind[i].buffer);
 							break;
 
-						case MYSQL_TYPE_DATE: // Not used in this stored procedure
+						case MYSQL_TYPE_DATE:
 							if (*rs_bind[i].is_null)
 								printf(" val[%d] = NULL;", i);
 							else
