@@ -1,0 +1,8 @@
+{
+	"host": "localhost",
+	"username": "spazi",
+	"password": "settoreSpazi",
+	"port": 3306,
+	"database": "mydb"
+}
+

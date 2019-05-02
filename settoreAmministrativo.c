@@ -113,7 +113,7 @@ void getUserNumeroInterno(MYSQL *connessione){
 		exit(1);
 	}
 
-	status = mysql_stmt_prepare(stmt, "CALL getAssegnazioniPassate(000001)", strlen("CALL getAssegnazioniPassate(000001)"));
+	status = mysql_stmt_prepare(stmt, "CALL getAssegnazioniPassate(?)", strlen("CALL getAssegnazioniPassate(?)"));
 	test_stmt_error(stmt, status);
 
 	memset(ps_params, 0, sizeof(ps_params));

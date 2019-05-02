@@ -1,7 +1,7 @@
 {
 	"host": "localhost",
 	"username": "amministrativo",
-	"password": "Frazzei95",
+	"password": "settoreAmministrativo",
 	"port": 3306,
 	"database": "mydb"
 }

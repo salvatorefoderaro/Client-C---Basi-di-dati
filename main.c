@@ -26,7 +26,7 @@ void test_stmt_error(MYSQL_STMT * stmt, int status){
 int main(int argc, char **argv){
 	
 	MYSQL *con = mysql_init(NULL);
-    load_file(&config, "config.json");
+    load_file(&config, "tempUser.json");
 	parse_config();
 
 	if(con == NULL) {
@@ -54,21 +54,21 @@ int main(int argc, char **argv){
 			int result = getUserType(con);
 
 			if (result == 1){
-				load_file(&config, "config1.json");
+				load_file(&config, "settoreAmministrativo.json");
 				parse_config();
-				/*if (mysql_change_user(con,conf.username, conf.password, conf.database) != 0){
-					fprintf(stderr, "Failed to change user.  Error: %s\n", mysql_error(con));
+				if (mysql_change_user(con,conf.username, conf.password, conf.database) != 0){
+					printf("Failed to change user.  Error: %s\n", mysql_error(con));
 					flushTerminal
 					exit(-1);
-				} */	
+				}
 				menuSettoreAmministrativo(con);
 			
 			} else if (result == 2){
-				/*load_file(&config, "config.json");
+				load_file(&config, "settoreSpazi.json");
 				parse_config();
 				if (!mysql_change_user(con,conf.username, conf.password, conf.database)){
 					fprintf(stderr, "Failed to change user.  Error: %s\n", mysql_error(con));
-				}*/
+				}
 				menuSettoreSpazi(con);
 
 			} else {

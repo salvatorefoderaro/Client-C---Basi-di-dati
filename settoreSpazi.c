@@ -5,7 +5,7 @@
 #include "program.h"
 
 void getPostazioni(MYSQL *connessione){
-		MYSQL *con = connessione;
+	MYSQL *con = connessione;
 	MYSQL_STMT *stmt;
 	int status;
 
@@ -22,7 +22,7 @@ void getPostazioni(MYSQL *connessione){
 	test_stmt_error(stmt, status);
 
     if(status){ flushTerminal return; }
-
+	printf("     ID Postazione     |     ID Ufficio     ");
 	printResults(stmt, con);
 }
 
@@ -45,6 +45,8 @@ void getPostazioniAttive(MYSQL *connessione){
 
     if(status){ flushTerminal return; }
 
+	printf("     ID Postazione Attiva    |     Disponibile?      |     ID Ufficio     ");
+
 	printResults(stmt, con);
 }
 
@@ -66,6 +68,8 @@ void getUserDaTrasferire(MYSQL *connessione){
 	test_stmt_error(stmt, status);
 
     if(status){ flushTerminal return; }
+
+	printf("     ID Dipendente     ");
 
 	printResults(stmt, con);
 }
@@ -164,7 +168,7 @@ void checkUserScambiabili(MYSQL *connessione){
 	test_stmt_error(stmt, status);
 
     if(status){ flushTerminal return; }
-	printf("      ----->      Postazioni disponibili per lo scambio     <------");
+	printf("     ID Dipendente     |     ID Postazione      ");
 	printResults(stmt, con);
 }
 
@@ -388,7 +392,7 @@ void checkPostazioniDisponibili(MYSQL *connessione){
 
     if(status){ flushTerminal return; }
 
-    printf("\n\n     --> ID Postazione     \n\n");
+	printf("     ID Postazione Attiva     ");
 
 	printResults(stmt, con);
 }
