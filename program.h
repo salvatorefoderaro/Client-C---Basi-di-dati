@@ -34,3 +34,4 @@ extern int menuSettoreSpazi(MYSQL *connessione);
 extern int menuSettoreAmministrativo(MYSQL *connessione);
 extern int menuAltroDipendente(MYSQL *connessione);
 extern void getUserNumeroInterno(MYSQL *connessione);
+extern void assegnaPostazioneToUfficio(MYSQL *connessione);

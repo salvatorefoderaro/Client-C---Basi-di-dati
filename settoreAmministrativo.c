@@ -10,7 +10,7 @@ int menuSettoreAmministrativo(MYSQL* connessione){
 	char scelta_utente[10];
 	while(1){
 		printf("\n     ***** Tipo dipendente: Settore amministrativo *****\n");	
-		printf("\n1 - Visualizza assegnazioni passate dipendente\n2 - Modifica mansione dipendente\n3 - Termina esecuzione\n\nScegli un opzione: ");	
+		printf("\n1 - Visualizza assegnazioni passate dipendente\n2 - Modifica mansione dipendente\n3 - Indica utente come da trasferire\n4 - Termina esecuzione\n\nScegli un opzione: ");	
 		fgets(scelta_utente, 32, stdin);
 		scelta = atoi(scelta_utente);
 		switch (scelta) {
@@ -29,7 +29,8 @@ int menuSettoreAmministrativo(MYSQL* connessione){
 			flush_terminal_no_input
 			mysql_close(con);
 			exit(1);
-			break;		
+			break;
+		
 		case 4:
 			getUserNumeroInterno(con);
 			break;
@@ -189,4 +190,8 @@ void editMansione(MYSQL *connessione){
 		flushTerminal
 		return; 
 	}
+
+	printf("\nMansione modificata correttamente!\n");
+	flushTerminal
+
 }

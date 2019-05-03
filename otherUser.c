@@ -11,31 +11,26 @@ int menuAltroDipendente(MYSQL* connessione){
 	while(1){
 
 		printf("\n     ***** Tipo dipendente: Altro dipendente *****\n");	
-		printf("\n     3 - Termina esecuzione\n\nScegli un opzione: ");
+		printf("\n1 - Cerca dipendente numero intero\n2 - Cerca dipendente nome e/o cognome\n3 - Termina esecuzione\n\nScegli un opzione: ");
 
 		fgets(scelta_utente, 32, stdin);
 		scelta = atoi(scelta_utente);
 		switch (scelta) {
 		
-		case 1: // Login
+		case 1: 
 			flush_terminal_no_input
 			int result = getUserType(con);
 			break;
 		
-		case 2: // Leggi tutti i messaggi presenti
+		case 2: 
 			flush_terminal_no_input
-			// getAssegnazioniPassate(con);
 			break;
 		
-		case 3: // Inserimento nuovo messaggio
+		case 3: 
 			flush_terminal_no_input
 			mysql_close(con);
 			exit(1);
 			break;
-		
-		case 4: // Termina esecuzione programma
-			flush_terminal_no_input
-			return 0;
 
 		default:
 				flush_terminal_no_input

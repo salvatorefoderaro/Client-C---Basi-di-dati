@@ -71,6 +71,14 @@ int main(int argc, char **argv){
 				}
 				menuSettoreSpazi(con);
 
+			}  else if (result == 3){
+				load_file(&config, "otherUser.json");
+				parse_config();
+				if (!mysql_change_user(con,conf.username, conf.password, conf.database)){
+					fprintf(stderr, "Failed to change user.  Error: %s\n", mysql_error(con));
+				}
+				menuAltroDipendente(con);
+
 			} else {
 				break;
 			}
