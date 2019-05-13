@@ -204,7 +204,6 @@ void printResults(MYSQL_STMT *statement, MYSQL *connessione){
 	}
 
 	mysql_stmt_close(stmt);
-		//printf("The returned token is: %s\n", token);
 	flushTerminal
 	return;
 }
