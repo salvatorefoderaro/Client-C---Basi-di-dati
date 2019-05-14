@@ -22,8 +22,8 @@ void getPostazioni(MYSQL *connessione){
 	test_stmt_error(stmt, status);
 
     if(status){ flushTerminal return; }
-	printf("     ID Postazione     |     ID Ufficio     ");
-	printResults(stmt, con);
+	char *toPrint[2] = {"ID Postazione", "ID Ufficio"};
+	printResults(stmt, con, toPrint);
 }
 
 void getPostazioniAttive(MYSQL *connessione){
@@ -45,9 +45,8 @@ void getPostazioniAttive(MYSQL *connessione){
 
     if(status){ flushTerminal return; }
 
-	printf("     ID Postazione Attiva    |     Disponibile?      |     ID Ufficio     ");
-
-	printResults(stmt, con);
+	char *toPrint[3] = {"ID Postazione Attiva", "Disponibile?", "ID Ufficio"};
+	printResults(stmt, con, toPrint);
 }
 
 void getUserDaTrasferire(MYSQL *connessione){
@@ -69,9 +68,8 @@ void getUserDaTrasferire(MYSQL *connessione){
 
     if(status){ flushTerminal return; }
 
-	printf("     ID Dipendente     ");
-
-	printResults(stmt, con);
+	char *toPrint[1] = {"ID DIpendente"};
+	printResults(stmt, con, toPrint);
 }
 
 void makeScambioUser(MYSQL *connessione){
@@ -170,7 +168,7 @@ void checkUserScambiabili(MYSQL *connessione){
 
     if(status){ flushTerminal return; }
 	printf("     ID Dipendente     |     ID Postazione      ");
-	printResults(stmt, con);
+	//printResults(stmt, con);
 }
 
 void inserisciPostazione(MYSQL *connessione){
@@ -393,9 +391,8 @@ void checkPostazioniDisponibili(MYSQL *connessione){
 
     if(status){ flushTerminal return; }
 
-	printf("     ID Postazione Attiva     ");
-
-	printResults(stmt, con);
+	char *toPrint[1] = {"ID Postazione Attiva"};
+	printResults(stmt, con, toPrint);
 }
 
 void assignToPostazioneFree(MYSQL *connessione){	

@@ -8,8 +8,6 @@
 struct configuration conf;
 char nome[64];
 
-void printResults(MYSQL_STMT *statement, MYSQL *connessione);
-
 void test_error(MYSQL * con, int status){
 	if (status) {
 		fprintf(stderr, "Error: %s (errno: %d)\n", mysql_error(con),
@@ -99,7 +97,7 @@ int main(int argc, char **argv){
 		return 1;
 }
 
-void printResults(MYSQL_STMT *statement, MYSQL *connessione){
+void printResults(MYSQL_STMT *statement, MYSQL *connessione, char **resultName){
 	MYSQL *con = connessione;
 	MYSQL_RES *result;
 	MYSQL_ROW row;
@@ -111,8 +109,12 @@ void printResults(MYSQL_STMT *statement, MYSQL *connessione){
 	int i, num_fields, status;
 	MYSQL_BIND *rs_bind;
 	MYSQL_TIME *date;
+	int resultSet = 0;
+	i = 0;
 
 	do {
+		resultSet = i;
+		printf("\n");
 		num_fields = mysql_stmt_field_count(stmt);
 
 		if (num_fields > 0) {
@@ -151,36 +153,37 @@ void printResults(MYSQL_STMT *statement, MYSQL *connessione){
 					switch (rs_bind[i].buffer_type) {
 						case MYSQL_TYPE_VAR_STRING: 
 							if (*rs_bind[i].is_null)
-								printf(" val[%d] = NULL;", i);
+								printf("%s = NULL; ", resultName[resultSet]);
 							else
-								printf(" val[%d] = %s;", i, (char*)rs_bind[i].buffer);
+								printf("%s = %s; ", resultName[resultSet], (char*)rs_bind[i].buffer);
 							break;
 
 						case MYSQL_TYPE_TINY:
 							if (*rs_bind[i].is_null)
-								printf(" val[%d] = NULL;", i);
+								printf("%s = NULL; ", resultName[resultSet]);
 							else
-								printf(" val[%d] = %d;", i, *(bool*)rs_bind[i].buffer);
+								printf("%s = %d; ", resultName[resultSet], *(bool*)rs_bind[i].buffer);
 							break;
 
 						case MYSQL_TYPE_LONG:
 							if (*rs_bind[i].is_null)
-								printf(" val[%d] = NULL;", i);
+								printf("%s = NULL; ", resultName[resultSet]);
 							else
-								printf(" val[%d] = %d;", i, *(int*)rs_bind[i].buffer);
+								printf("%s = %d; ", resultName[resultSet], *(int*)rs_bind[i].buffer);
 							break;
 
 						case MYSQL_TYPE_DATE:
 							if (*rs_bind[i].is_null)
-								printf(" val[%d] = NULL;", i);
+								printf("%s = NULL; ", resultName[resultSet]);
 							else
 								date = rs_bind[i].buffer;
-								printf(" val[%d] = %d-%d-%d;", i, date->day, date->month, date->year);
+								printf("%s = %d/%d/%d; ", resultName[resultSet], date->day, date->month, date->year);
 							break;
 
 						default:
 							printf("ERROR: unexpected type (%d)\n", rs_bind[i].buffer_type);
 					}
+					resultSet +=1;
 				}
 				counter = counter + 1;
 				printf("\n");
