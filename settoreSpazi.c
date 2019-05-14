@@ -174,9 +174,14 @@ void checkUserScambiabili(MYSQL *connessione){
 void inserisciPostazione(MYSQL *connessione){
 	MYSQL *con = connessione;
 	MYSQL_STMT *stmt;
+	MYSQL_BIND *rs_bind;
+	MYSQL_RES *rs_metadata;
+	bool is_null[2];		
+	MYSQL_FIELD *fields;
 	MYSQL_BIND ps_params[2];	// input parameter buffers
 	unsigned long length[2];	// Can do like that because all IN parameters have the same length
 	int status;
+	int idPostazione;
 
 	char nome[64];
 	printf("ID Ufficio: ");
@@ -190,7 +195,7 @@ void inserisciPostazione(MYSQL *connessione){
 		exit(1);
 	}
 
-	status = mysql_stmt_prepare(stmt, "CALL insertNewPostazione(?)", strlen("CALL insertNewPostazione(?)"));
+	status = mysql_stmt_prepare(stmt, "CALL insertNewPostazione(?, ?)", strlen("CALL insertNewPostazione(?, ?)"));
 	test_stmt_error(stmt, status);
 
 	memset(ps_params, 0, sizeof(ps_params));
@@ -211,7 +216,34 @@ void inserisciPostazione(MYSQL *connessione){
 
     if(status){ flushTerminal return; }
 
-    printf("\n\n     ---> Postazione inserita correttamente <---     \n\n");
+	rs_metadata = mysql_stmt_result_metadata(stmt);
+	
+	fields = mysql_fetch_fields(rs_metadata);
+
+	rs_bind = (MYSQL_BIND *) malloc(sizeof(MYSQL_BIND) * 1); // We know the number of parameters beforehand
+	memset(rs_bind, 0, sizeof(MYSQL_BIND) * 1);
+
+	int *idDipendente2 = malloc(sizeof(int));
+
+	rs_bind[0].buffer_type = MYSQL_TYPE_LONG;
+	rs_bind[0].is_null = &is_null[0];
+	rs_bind[0].buffer = &idPostazione;
+	rs_bind[0].buffer_length = sizeof(int);
+
+	status = mysql_stmt_bind_result(stmt, rs_bind);
+	test_stmt_error(stmt, status);
+
+	status = mysql_stmt_fetch(stmt);
+	if (status == 1 || status == MYSQL_NO_DATA) {
+		printf("Unable to retrieve the information\n");
+	}
+
+    printf("\n\n     ---> Postazione inserita correttamente <---     \n          ID Della postazione inserita: %d\n", idPostazione);
+
+	mysql_free_result(rs_metadata);	// free metadata
+	free(rs_bind);	// free output buffers
+	mysql_stmt_close(stmt);
+
 	flushTerminal
 	return;
 }
@@ -447,6 +479,8 @@ void assignToPostazioneFree(MYSQL *connessione){
 
 	printf("\nUtente assegnato correttamente!\n");
 	flushTerminal
+	mysql_stmt_close(stmt);
+	return;
 }
 
 void assegnaPostazioneToUfficio(MYSQL *connessione){
@@ -500,6 +534,8 @@ void assegnaPostazioneToUfficio(MYSQL *connessione){
     if(status){ flushTerminal return; }
 	printf("\nPostazione assegnata correttamente!\n");
 	flushTerminal
+	mysql_stmt_close(stmt);
+	return;
 }
 
 int menuSettoreSpazi(MYSQL *connessione){
