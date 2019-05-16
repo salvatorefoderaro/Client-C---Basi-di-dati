@@ -546,7 +546,7 @@ int menuSettoreSpazi(MYSQL *connessione){
 	while(1){
 
 		printf("\n     ***** Tipo dipendente: Settore spazi *****\n");	
-		printf("\n1 - Postazioni disponibili per l'utente\n2 - Assegna dipendente ad una postazioni libera\n3 - checkUserScambiabili\n4 - makeScambioUser\n5 - getPostazioni\n6 - getPostazioniAttive\n7 - getUserDaTrasferire\n8 - disabilitaPostazione\n9 - abilitaPostazione\n10 - inserisciPostazione\n11 - eliminaPostazione\n12 - Assegna postazione ad ufficio\n13 - Termina esecuzione\n\nScegli un opzione: ");	
+		printf("\n1 - Postazioni disponibili per l'utente\n2 - Assegna dipendente ad una postazioni libera\n3 - checkUserScambiabili\n4 - makeScambioUser\n5 - getPostazioni\n6 - getPostazioniAttive\n7 - getUserDaTrasferire\n8 - disabilitaPostazione\n9 - abilitaPostazione\n10 - inserisciPostazione\n11 - eliminaPostazione\n12 - Assegna postazione ad ufficio\n13 - getUserNumeroInterno\n14 - getNameSurname\n15 - Termina esecuzione\n\nScegli un opzione: ");	
 
 		fgets(scelta_utente, 32, stdin);
 		scelta = atoi(scelta_utente);
@@ -612,7 +612,15 @@ int menuSettoreSpazi(MYSQL *connessione){
 			assegnaPostazioneToUfficio(con);
 			break;
 
-		case 13: 
+		case 13:
+			getUserNumeroInterno(con);
+			break;
+
+		case 14:
+			getNameSurname(con);
+			break;
+
+		case 15: 
 			flush_terminal_no_input
 			mysql_close(con);
 			exit(1);
