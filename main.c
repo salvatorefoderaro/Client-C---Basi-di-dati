@@ -150,6 +150,7 @@ void printResults(MYSQL_STMT *statement, MYSQL *connessione, char **resultName){
 				}
 
 				for (i = 0; i < num_fields; ++i) {
+					resultSet = i;
 					switch (rs_bind[i].buffer_type) {
 						case MYSQL_TYPE_VAR_STRING: 
 							if (*rs_bind[i].is_null)
@@ -181,7 +182,7 @@ void printResults(MYSQL_STMT *statement, MYSQL *connessione, char **resultName){
 							break;
 
 						default:
-							printf("ERROR: unexpected type (%d)\n", rs_bind[i].buffer_type);
+							printf("ERROR: unexpected type (%d)\n", rs_bind[resultSet].buffer_type);
 					}
 					resultSet +=1;
 				}

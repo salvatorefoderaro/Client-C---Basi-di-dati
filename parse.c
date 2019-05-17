@@ -72,7 +72,7 @@ size_t load_file(char **buffer, char *filename)
 	
 	fseek(f, 0, SEEK_END);
 	size_t fsize = ftell(f);
-	fseek(f, 0, SEEK_SET);  //same as rewind(f);
+	fseek(f, 0, SEEK_SET); 
 	
 	*buffer = malloc(fsize + 1);
 	fread(*buffer, fsize, 1, f);

@@ -167,8 +167,8 @@ void checkUserScambiabili(MYSQL *connessione){
 	test_stmt_error(stmt, status);
 
     if(status){ flushTerminal return; }
-	printf("     ID Dipendente     |     ID Postazione      ");
-	//printResults(stmt, con);
+	char *toPrint[2] = {"ID Dipendente", "ID Postazione"};
+	printResults(stmt, con, toPrint);
 }
 
 void inserisciPostazione(MYSQL *connessione){
