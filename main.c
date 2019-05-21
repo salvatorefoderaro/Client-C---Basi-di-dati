@@ -110,6 +110,7 @@ void printResults(MYSQL_STMT *statement, MYSQL *connessione, char **resultName){
 	MYSQL_BIND *rs_bind;
 	MYSQL_TIME *date;
 	int resultSet = 0;
+	int lastResultSet = 0;
 	i = 0;
 
 	do {
@@ -118,9 +119,6 @@ void printResults(MYSQL_STMT *statement, MYSQL *connessione, char **resultName){
 		num_fields = mysql_stmt_field_count(stmt);
 
 		if (num_fields > 0) {
-
-			if (con->server_status & SERVER_PS_OUT_PARAMS)
-				printf("The stored procedure has returned output in OUT/INOUT parameter(s)\n");
 
 			rs_metadata = mysql_stmt_result_metadata(stmt);
 			test_stmt_error(stmt, rs_metadata == NULL);
@@ -132,7 +130,7 @@ void printResults(MYSQL_STMT *statement, MYSQL *connessione, char **resultName){
 				exit(1);
 			}
 			memset(rs_bind, 0, sizeof(MYSQL_BIND) * num_fields);
-
+			
 			for (i = 0; i < num_fields; ++i) {
 				rs_bind[i].buffer_type = fields[i].type;
 				rs_bind[i].is_null = &is_null[i];
@@ -148,9 +146,10 @@ void printResults(MYSQL_STMT *statement, MYSQL *connessione, char **resultName){
 				if (status == 1 || status == MYSQL_NO_DATA){
 					break;
 				}
+				resultSet = lastResultSet;
 
 				for (i = 0; i < num_fields; ++i) {
-					resultSet = i;
+
 					switch (rs_bind[i].buffer_type) {
 						case MYSQL_TYPE_VAR_STRING: 
 							if (*rs_bind[i].is_null)
@@ -199,6 +198,7 @@ void printResults(MYSQL_STMT *statement, MYSQL *connessione, char **resultName){
 		}
 
 		status = mysql_stmt_next_result(stmt);
+		lastResultSet = i;
 		if (status > 0)
 			test_stmt_error(stmt, status);
 	} while (status == 0);
@@ -297,8 +297,6 @@ int getUserType(MYSQL *connessione){
 	if (status == 1 || status == MYSQL_NO_DATA) {
 		printf("Unable to retrieve the information\n");
 	}
-
-	printf("\nTipo di utente è: %d\n", *idDipendente2);
 
 	mysql_free_result(rs_metadata);	// free metadata
 	free(rs_bind);	// free output buffers

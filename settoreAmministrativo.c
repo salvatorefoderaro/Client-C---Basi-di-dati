@@ -32,15 +32,17 @@ int menuSettoreAmministrativo(MYSQL* connessione){
 			break;
 		
 		case 4:
+			flush_terminal_no_input
 			getUserNumeroInterno(con);
 			break;
 
 		case 5:
-			getUserNumeroInterno(con);
+			flush_terminal_no_input
+			getNameSurname(con);
 			break;
 
 		case 6:
-			getNameSurname(con);
+			exit(1);
 			break;
 
 		default:
