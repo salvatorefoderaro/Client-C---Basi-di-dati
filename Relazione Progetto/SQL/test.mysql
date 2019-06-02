@@ -1,0 +1,18 @@
+	SELECT I2.dipendente as idImpiegato, I2.postazione as idPostazione
+from impiegoCorrente I2 WHERE 
+(
+(
+NOT EXISTS (SELECT * FROM ImpiegoPassato IP WHERE IP.dipendente = 1 and IP.postazione = I2.postazione)
+or
+EXISTS (SELECT * from ImpiegoPassato IP WHERE IP.dipendente = 1 and IP.postazione = I2.postazione and IP.DataInizio < DATE(DATE_sub(NOW(), INTERVAL 2 YEAR)))
+)
+and
+(
+NOT EXISTS(SELECT * FROM ImpiegoPassato IP WHERE IP.Dipendente = I2.Dipendente and IP.postazione = 3)
+or
+EXISTS(SELECT * from ImpiegoPassato IP WHERE IP.Dipendente = I2.Dipendente and IP.postazione = 3 and IP.DataInizio < DATE(DATE_sub(NOW(), INTERVAL 2 YEAR)))
+)
+and I2.dipendente != 1
+);
+
+// Manca mansione impiegato1 == mansione impiegato2;
