@@ -2,202 +2,305 @@
 #include <stdlib.h>
 #include <string.h>
 #include <mysql.h>
-
 #include "program.h"
 
+
 struct configuration conf;
+char nome[64];
 
-#define query(Q) do { \
-			if (mysql_query(con, Q)) { \
-				finish_with_error(con, Q); \
-			} \
-		 } while(0)
-
-static void finish_with_error(MYSQL *con, char *err)
-{
-	fprintf(stderr, "%s error: %s\n", err, mysql_error(con));
-	mysql_close(con);
-	exit(1);        
+void test_error(MYSQL * con, int status){
+	if (status) {
+		fprintf(stderr, "Error: %s (errno: %d)\n", mysql_error(con),
+			mysql_errno(con));
+	}
 }
 
-static void store_image(MYSQL *con, char *car_name) {
-	char *image;
-	char filename[128];
-	size_t length, q_len;
-	char *chunk, *query;
-	char *basic_query = "INSERT INTO Images (`Car`, `Picture`)"
-			    "VALUES ( "
-				"(SELECT `Id` FROM Cars WHERE `Name` = '%s' LIMIT 1), "
-				"'%s'"
-			    ")";
-	q_len = strlen(basic_query);    
-
-	snprintf(filename, 128, "img/%s.jpg", car_name);
-	length = load_file(&image, filename);
-
-	// Get space to store the query
-	chunk = malloc(2 * length + 1);
-	query = malloc(q_len + 2 * length + 1);
-
-	// Prevent SQL Injections
-	mysql_real_escape_string(con, chunk, image, length);
-
-	length = snprintf(query, q_len + 2 * length + 1, basic_query, car_name, chunk);
-
-	// mysql_query() cannot be used when there are raw data in place
-	// (Binary data may contain the \0 character, which mysql_query()
-	// interprets as the end of the statement string.) 
-	if (mysql_real_query(con, query, length)) {
-		finish_with_error(con, "Image insertion");
-	};
-
-	free(chunk);
-	free(query);
-	free(image);
+void test_stmt_error(MYSQL_STMT * stmt, int status){
+	if (status) {
+		fprintf(stderr, "\nErrore: %s\n", mysql_stmt_error(stmt));
+	}
 }
 
-int main(int argc, char **argv)
-{  
+int main(int argc, char **argv){
+	flush_terminal_no_input
 	MYSQL *con = mysql_init(NULL);
-	MYSQL_RES *result;
-	MYSQL_ROW row;
-	MYSQL_FIELD *field;
-	
-	int id, num_fields;
-	char create_query[128] = "CREATE DATABASE IF NOT EXISTS ";
-	char use_query[128] = "USE ";
-
-	load_file(&config, "config.json");
+    load_file(&config, "tempUser.json");
 	parse_config();
-	dump_config();
 
 	if(con == NULL) {
 		fprintf(stderr, "Initilization error: %s\n", mysql_error(con));
 		exit(1);
 	}
 
-	if(mysql_real_connect(con, conf.host, conf.username, conf.password, NULL, conf.port, NULL, 0) == NULL) {
-		finish_with_error(con, "Connection");
+	if (mysql_real_connect(con, conf.host, conf.username, conf.password, conf.database, conf.port, NULL, CLIENT_MULTI_STATEMENTS) == NULL) {
+		fprintf(stderr, "Connection error: %s\n", mysql_error(con));
+		exit(1);
 	}
 
-	puts("*** Creating the database ***");
+	int scelta;
+	char scelta_utente[10];
 
-	strncat(create_query, conf.database, 128);
-	create_query[127] = '\0';
-	if(mysql_query(con, create_query)) {
-		finish_with_error(con, "Creation");
-	}
+	while(1){
+		printf("\n1 - Effettua l'accesso al sistema\n2 - Termina programma\n\nScegli un opzione: ");	
+		fgets(scelta_utente, 32, stdin);
+		printf("\n\n");
+		scelta = atoi(scelta_utente);
+		switch (scelta) {
+		
+		case 1:
+			flush_terminal_no_input
+			int result = getUserType(con);
 
-	strncat(use_query, conf.database, 128);
-	use_query[127] = '\0';
-	if(mysql_query(con, use_query)) {
-		finish_with_error(con, "Use");
-	}
+			if (result == 1){
+				load_file(&config, "settoreAmministrativo.json");
+				parse_config();
+				if (mysql_change_user(con,conf.username, conf.password, conf.database) != 0){
+					printf("Failed to change user.  Error: %s\n", mysql_error(con));
+					flushTerminal
+					exit(-1);
+				}
+				menuSettoreAmministrativo(con);
+			
+			} else if (result == 2){
+				load_file(&config, "settoreSpazi.json");
+				parse_config();
+				if (!mysql_change_user(con,conf.username, conf.password, conf.database)){
+					fprintf(stderr, "Failed to change user.  Error: %s\n", mysql_error(con));
+				}
+				menuSettoreSpazi(con);
 
-	// Create a fresh table
-	puts("** Creating and Populating **");
-	query("DROP TABLE IF EXISTS Cars");
-	query("CREATE TABLE Cars ("
-			"Id INT AUTO_INCREMENT,"
-			"Name TEXT,"
-			"Price INT,"
-			"PRIMARY KEY (Id)"
-	      ")");
+			}  else if (result == 3){
+				load_file(&config, "otherUser.json");
+				parse_config();
+				if (!mysql_change_user(con,conf.username, conf.password, conf.database)){
+					fprintf(stderr, "Failed to change user.  Error: %s\n", mysql_error(con));
+				}
+				menuAltroDipendente(con);
 
-	// Populate
-	query("INSERT INTO Cars VALUES (1,'Audi',52642)");
-	query("INSERT INTO Cars VALUES (2,'Mercedes',57127)");
-	query("INSERT INTO Cars VALUES (3,'Skoda',9000)");
-	query("INSERT INTO Cars VALUES (4,'Volvo',29000)");
-	query("INSERT INTO Cars VALUES (5,'Bentley',350000)");
-	query("INSERT INTO Cars VALUES (6,'Citroen',21000)");
-	query("INSERT INTO Cars VALUES (7,'Hummer',41400)");
-	query("INSERT INTO Cars VALUES (8,'Volkswagen',21600)");
-
-	// Retrieve the ID of the last insertion
-	id = mysql_insert_id(con); // Only works if there is an autoincrement key
-	printf("Last inserted id: %d\n", id);
-
-	// Retrieve the inserted data
-	puts("**    Dumping the data    ***");
-	query("SELECT * FROM Cars");
-
-	result = mysql_store_result(con);
-	if (result == NULL) {
-		finish_with_error(con, "Select");
-	}
-
-	num_fields = mysql_num_fields(result);
-
-	// Dump header on screen
-	while(field = mysql_fetch_field(result)) {
-		printf("%s ", field->name);
-	}
-	printf("\n");
-	// Dump data on screen
-	while ((row = mysql_fetch_row(result))) { 
-		for(int i = 0; i < num_fields; i++) {
-			printf("%s ", row[i] ? row[i] : "NULL");
-		} 
-		printf("\n"); 
-	}
-	mysql_free_result(result);
-
-	// Create and populate image table
-	query("DROP TABLE IF EXISTS Images");
-	query("CREATE TABLE Images ("
-			"Id INT AUTO_INCREMENT,"
-			"Car INT,"
-			"Picture MEDIUMBLOB,"
-			"PRIMARY KEY (Id)"
-	      ")");
-
-	// Store images
-	store_image(con, "Volkswagen");
-	store_image(con, "Hummer");
-	store_image(con, "Citroen");
-	store_image(con, "Bentley");
-	store_image(con, "Volvo");
-	store_image(con, "Skoda");
-	store_image(con, "Mercedes");
-	store_image(con, "Audi");
-
-
-	if(yesOrNo("Do you want to open an image?", 'Y', 'N', false, true)) {
-		char nome[64];
-		char q[128];
-		printf("Insert the car name: ");
-		getInput(128, nome, false);
-		printf("Retrieving image for %s\n", nome);
-
-		snprintf(q, 128, "SELECT I.Picture FROM Images I RIGHT JOIN Cars C ON C.Id = I.Car WHERE C.Name = '%s'", nome);
-		query(q);
-
-		result = mysql_store_result(con);
-		if (result == NULL) {
-			finish_with_error(con, "Car not found");
-		}
-
-		row = mysql_fetch_row(result);
-		unsigned long *lengths = mysql_fetch_lengths(result);
-  
-		if (lengths == NULL) {
-			finish_with_error(con, "Retrieving length");
-		}
-
-		FILE *fp = fopen(".tmp.jpg", "wb");
-		if (fp == NULL) {
-			fprintf(stderr, "cannot open temporary file\n");
+			} else {
+				break;
+			}
+		
+		case 2: 
+			flush_terminal_no_input
+			mysql_close(con);
 			exit(1);
+			break;
+
+		default:
+			flush_terminal_no_input
+			printf("\nInserisci un numero corretto per continuare!\n");
+			flushTerminal
+			break;
+			}
+		}
+		return 1;
+}
+
+void printResults(MYSQL_STMT *statement, MYSQL *connessione, char **resultName){
+	MYSQL *con = connessione;
+	MYSQL_RES *result;
+	MYSQL_ROW row;
+	MYSQL_FIELD *field;
+	MYSQL_RES *rs_metadata;
+	MYSQL_STMT *stmt = statement;
+	bool is_null[4];		
+	MYSQL_FIELD *fields;
+	int i, num_fields, status;
+	MYSQL_BIND *rs_bind;
+	MYSQL_TIME *date;
+	int resultSet = 0;
+	int lastResultSet = 0;
+	i = 0;
+
+	do {
+		resultSet = i;
+		printf("\n");
+		num_fields = mysql_stmt_field_count(stmt);
+
+		if (num_fields > 0) {
+
+			rs_metadata = mysql_stmt_result_metadata(stmt);
+			test_stmt_error(stmt, rs_metadata == NULL);
+
+			fields = mysql_fetch_fields(rs_metadata);
+			rs_bind = (MYSQL_BIND *)malloc(sizeof(MYSQL_BIND) * num_fields);
+			if (!rs_bind) {
+				printf("Cannot allocate output buffers\n");
+				exit(1);
+			}
+			memset(rs_bind, 0, sizeof(MYSQL_BIND) * num_fields);
+			
+			for (i = 0; i < num_fields; ++i) {
+				rs_bind[i].buffer_type = fields[i].type;
+				rs_bind[i].is_null = &is_null[i];
+				rs_bind[i].buffer = malloc(fields[i].length);
+				rs_bind[i].buffer_length = fields[i].length;
+			}
+
+			status = mysql_stmt_bind_result(stmt, rs_bind);
+			test_stmt_error(stmt, status);
+			int counter = 0;
+			while (1) {
+				status = mysql_stmt_fetch(stmt);
+				if (status == 1 || status == MYSQL_NO_DATA){
+					break;
+				}
+				resultSet = lastResultSet;
+
+				for (i = 0; i < num_fields; ++i) {
+
+					switch (rs_bind[i].buffer_type) {
+						case MYSQL_TYPE_VAR_STRING: 
+							if (*rs_bind[i].is_null)
+								printf("%s = NULL; ", resultName[resultSet]);
+							else
+								printf("%s = %s; ", resultName[resultSet], (char*)rs_bind[i].buffer);
+							break;
+
+						case MYSQL_TYPE_TINY:
+							if (*rs_bind[i].is_null)
+								printf("%s = NULL; ", resultName[resultSet]);
+							else
+								printf("%s = %d; ", resultName[resultSet], *(bool*)rs_bind[i].buffer);
+							break;
+
+						case MYSQL_TYPE_LONG:
+							if (*rs_bind[i].is_null)
+								printf("%s = NULL; ", resultName[resultSet]);
+							else
+								printf("%s = %d; ", resultName[resultSet], *(int*)rs_bind[i].buffer);
+							break;
+
+						case MYSQL_TYPE_DATE:
+							if (*rs_bind[i].is_null)
+								printf("%s = NULL; ", resultName[resultSet]);
+							else
+								date = rs_bind[i].buffer;
+								printf("%s = %d/%d/%d; ", resultName[resultSet], date->day, date->month, date->year);
+							break;
+
+						default:
+							printf("ERROR: unexpected type (%d)\n", rs_bind[resultSet].buffer_type);
+					}
+					resultSet +=1;
+				}
+				counter = counter + 1;
+				printf("\n");
+			}
+			if (counter == 0){
+				printf("\nNessun risultato disponibile!\n");
+			}
+			mysql_free_result(rs_metadata);	// free metadata
+			free(rs_bind);	// free output buffers
+		} else {
+
 		}
 
-		fwrite(row[0], lengths[0], 1, fp);
+		status = mysql_stmt_next_result(stmt);
+		lastResultSet = i;
+		if (status > 0)
+			test_stmt_error(stmt, status);
+	} while (status == 0);
 
-		system("xdg-open .tmp.jpg");
-
-		//remove(".tmp.jpg");
+	for (i = 0; i < num_fields; ++i) {
+		free(rs_bind[i].buffer);
 	}
 
-	mysql_close(con);
-	return 0;
+	mysql_stmt_close(stmt);
+	flushTerminal
+	return;
+}
+
+int getUserType(MYSQL *connessione){
+
+	/* Questa funzione permette di effettuare il Login, e restituisce il tipo di utente
+	se il login va a buon fine. */
+
+	printf("\n        ***** Login dipendente *****\n\n");
+
+	MYSQL *con = connessione;
+	MYSQL_STMT *stmt;
+	MYSQL_BIND ps_params[3];	
+	unsigned long length[3];	
+	MYSQL_BIND *rs_bind;
+	int status, userType;
+	bool is_null[2];		
+	MYSQL_FIELD *fields;
+	MYSQL_RES *rs_metadata;
+
+	stmt = mysql_stmt_init(con);
+	if (!stmt) {
+		printf("Could not initialize statement\n");
+		exit(1);
+	}
+
+	status = mysql_stmt_prepare(stmt, "CALL loginUser(?, ?, ?)", strlen("CALL loginUser(?, ?, ?)"));
+	test_stmt_error(stmt, status);
+
+	memset(ps_params, 0, sizeof(ps_params));
+	
+	char idDipendenteChar[20];
+	printf("Matricola dipendente: ");
+	getInput(20, idDipendenteChar, false);
+	int idDipendente = atoi(idDipendenteChar);
+	length[0] = sizeof(int);
+
+	printf("Password dipendente: ");
+	char passwordDipendente[20];
+	getInput(20, passwordDipendente, true);
+	length[1] = strlen(passwordDipendente);
+
+	ps_params[0].buffer_type = MYSQL_TYPE_LONG;
+	ps_params[0].buffer = &idDipendente;
+	ps_params[0].buffer_length = sizeof(int);
+	ps_params[0].length = &length[0];
+	ps_params[0].is_null = 0;
+
+	ps_params[1].buffer_type = MYSQL_TYPE_VAR_STRING;
+	ps_params[1].buffer = passwordDipendente;
+	ps_params[1].buffer_length = strlen(passwordDipendente);
+	ps_params[1].length = &length[1];
+	ps_params[1].is_null = 0;
+
+	status = mysql_stmt_bind_param(stmt, ps_params);
+	test_stmt_error(stmt, status);
+
+	status = mysql_stmt_execute(stmt);
+	test_stmt_error(stmt, status);
+
+	if(status){ flushTerminal return 0; }
+
+	if(mysql_stmt_field_count(stmt) == 0) {
+		fprintf(stderr, "Error while retrieving the stored procedure output\n");
+		exit(1);
+	}
+			
+	rs_metadata = mysql_stmt_result_metadata(stmt);
+	
+	fields = mysql_fetch_fields(rs_metadata);
+
+	rs_bind = (MYSQL_BIND *) malloc(sizeof(MYSQL_BIND) * 1); // We know the number of parameters beforehand
+	memset(rs_bind, 0, sizeof(MYSQL_BIND) * 1);
+
+	int *idDipendente2 = malloc(sizeof(int));
+
+	rs_bind[0].buffer_type = MYSQL_TYPE_LONG;
+	rs_bind[0].is_null = &is_null[0];
+	rs_bind[0].buffer = idDipendente2;
+	rs_bind[0].buffer_length = sizeof(int);
+
+	status = mysql_stmt_bind_result(stmt, rs_bind);
+	test_stmt_error(stmt, status);
+
+	status = mysql_stmt_fetch(stmt);
+	if (status == 1 || status == MYSQL_NO_DATA) {
+		printf("Unable to retrieve the information\n");
+	}
+
+	mysql_free_result(rs_metadata);	// free metadata
+	free(rs_bind);	// free output buffers
+	mysql_stmt_close(stmt);
+	flushTerminal
+	return *idDipendente2;
 }

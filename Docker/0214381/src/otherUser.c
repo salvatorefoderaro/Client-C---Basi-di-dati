@@ -4,44 +4,32 @@
 #include <mysql.h>
 #include "program.h"
 
-int menuSettoreAmministrativo(MYSQL* connessione){
+int menuAltroDipendente(MYSQL* connessione){
 	MYSQL *con = connessione;
 	int scelta;
 	char scelta_utente[10];
 	while(1){
-		printf("\n     ***** Tipo dipendente: Settore amministrativo *****\n");	
-		printf("\n1 - Visualizza assegnazioni passate dipendente\n2 - Modifica mansione dipendente\n3 - Indica utente come da trasferire\n4 - getUserNumeroInterno\n5 - getNameSurname\n6 - Termina esecuzione\n\nScegli un opzione: ");	
+
+		printf("\n     ***** Tipo dipendente: Altro dipendente *****\n");	
+		printf("\n1 - Cerca dipendente numero intero\n2 - Cerca dipendente nome e/o cognome\n3 - Termina esecuzione\n\nScegli un opzione: ");
+
 		fgets(scelta_utente, 32, stdin);
 		scelta = atoi(scelta_utente);
 		switch (scelta) {
 		
-		case 1: // Login
+		case 1: 
 			flush_terminal_no_input
-			getAssegnazioniPassate(con);
+			getUserNumeroInterno(connessione);
 			break;
 		
-		case 2: // Leggi tutti i messaggi presenti
+		case 2: 
 			flush_terminal_no_input
-			editMansione(con);
+			getNameSurname(connessione);
 			break;
 		
-		case 3: // Inserimento nuovo messaggio
+		case 3: 
 			flush_terminal_no_input
 			mysql_close(con);
-			exit(1);
-			break;
-		
-		case 4:
-			flush_terminal_no_input
-			getUserNumeroInterno(con);
-			break;
-
-		case 5:
-			flush_terminal_no_input
-			getNameSurname(con);
-			break;
-
-		case 6:
 			exit(1);
 			break;
 
@@ -51,23 +39,21 @@ int menuSettoreAmministrativo(MYSQL* connessione){
 				flushTerminal
 				break;
 			}
-
-
 	}
 }
 
-void getAssegnazioniPassate(MYSQL *connessione){
+void getUserNumeroInterno(MYSQL *connessione){
 
-	printf("\n        ***** getAssegnazioniPassate *****\n\n");
+	printf("\n        ***** getUserNumeroInterno *****\n\n");
 
 	MYSQL *con = connessione;
 	MYSQL_STMT *stmt;
-	MYSQL_BIND ps_params[1];	
-	unsigned long length[1];
+	MYSQL_BIND ps_params[1];	// input parameter buffers
+	unsigned long length[1];	// Can do like that because all IN parameters have the same length
 	int status;
 
 	char nome[64];
-	printf("ID Dipendente: ");
+	printf("Numero interno: ");
 	getInput(64, nome, false);
 	length[0] = sizeof(int);
 	int idDipendente = atoi(nome);
@@ -78,7 +64,7 @@ void getAssegnazioniPassate(MYSQL *connessione){
 		exit(1);
 	}
 
-	status = mysql_stmt_prepare(stmt, "CALL getAssegnazioniPassate(?)", strlen("CALL getAssegnazioniPassate(?)"));
+	status = mysql_stmt_prepare(stmt, "CALL getUserNumeroInterno(?)", strlen("CALL getUserNumeroInterno(?)"));
 	test_stmt_error(stmt, status);
 
 	memset(ps_params, 0, sizeof(ps_params));
@@ -96,11 +82,14 @@ void getAssegnazioniPassate(MYSQL *connessione){
 	test_stmt_error(stmt, status);
 
 	if(status){flushTerminal return; }
-	char *toPrint[4] = {"ID Assegnazione", "Data inizio", "Data fine", "ID Postazione"};
+	char *toPrint[6] = {"ID Ufficio", "Piano", "Edificio", "Mansione", "ID DIpendente", "Is da trasferire?"};
 	printResults(stmt, con, toPrint);
-}
+} 
 
-void editMansione(MYSQL *connessione){	
+void getNameSurname(MYSQL *connessione){
+
+	printf("\n        ***** getUserNumeroInterno *****\n\n");
+
 	MYSQL *con = connessione;
 	MYSQL_STMT *stmt;
 	MYSQL_BIND ps_params[2];	// input parameter buffers
@@ -108,16 +97,14 @@ void editMansione(MYSQL *connessione){
 	int status;
 
 	char nome[64];
-	printf("ID Dipendente: ");
+	printf("Nome dipendente: ");
 	getInput(64, nome, false);
-	length[0] = sizeof(int);
-	int idDipendente = atoi(nome);
+	length[0] = strlen(nome);
 
-	char mansione[64];
-	printf("\nID Mansione: ");
-	getInput(64, mansione, false);
-	length[1] = sizeof(int);
-	int idMansione = atoi(mansione);
+	char cognome[64];
+	printf("Cognome dipendente: ");
+	getInput(64, cognome, false);
+	length[1] = strlen(cognome);
 
 	stmt = mysql_stmt_init(con);
 	if (!stmt) {
@@ -125,20 +112,20 @@ void editMansione(MYSQL *connessione){
 		exit(1);
 	}
 
-	status = mysql_stmt_prepare(stmt, "CALL editMansione(?, ?)", strlen("CALL editMansione(?, ?)"));
+	status = mysql_stmt_prepare(stmt, "CALL userNameSurname(?, ?)", strlen("CALL userNameSurname(?, ?)"));
 	test_stmt_error(stmt, status);
 
 	memset(ps_params, 0, sizeof(ps_params));
 
-	ps_params[0].buffer_type = MYSQL_TYPE_LONG;
-	ps_params[0].buffer = &idDipendente;
-	ps_params[0].buffer_length = sizeof(int);
+	ps_params[0].buffer_type = MYSQL_TYPE_VAR_STRING;
+	ps_params[0].buffer = nome;
+	ps_params[0].buffer_length = strlen(nome);
 	ps_params[0].length = &length[0];
 	ps_params[0].is_null = 0;
 
-	ps_params[1].buffer_type = MYSQL_TYPE_LONG;
-	ps_params[1].buffer = &idMansione;
-	ps_params[1].buffer_length = sizeof(int);
+	ps_params[1].buffer_type = MYSQL_TYPE_VAR_STRING;
+	ps_params[1].buffer = cognome;
+	ps_params[1].buffer_length = strlen(cognome);
 	ps_params[1].length = &length[1];
 	ps_params[1].is_null = 0;
 
@@ -148,12 +135,7 @@ void editMansione(MYSQL *connessione){
 	status = mysql_stmt_execute(stmt);
 	test_stmt_error(stmt, status);
 
-	if(status){ 
-		flushTerminal
-		return; 
-	}
-
-	printf("\nMansione modificata correttamente!\n");
-	flushTerminal
-
+	if(status){flushTerminal return; }
+	char *toPrint[5] = {"E-Mail Ufficio","E-Mail Personale", "ID Ufficio", "Piano", "Edificio"};
+	printResults(stmt, con, toPrint);
 }

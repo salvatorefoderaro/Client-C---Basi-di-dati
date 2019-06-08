@@ -96,7 +96,7 @@ void getAssegnazioniPassate(MYSQL *connessione){
 	test_stmt_error(stmt, status);
 
 	if(status){flushTerminal return; }
-	char *toPrint[4] = {"ID Assegnazione", "Data inizio", "Data fine", "ID Postazione"};
+	char *toPrint[4] = {"ID Postazione", "Data inizio", "Data fine", "ID Postazione"};
 	printResults(stmt, con, toPrint);
 }
 
