@@ -22,7 +22,7 @@ void test_stmt_error(MYSQL_STMT * stmt, int status){
 }
 
 int main(int argc, char **argv){
-	
+	flush_terminal_no_input
 	MYSQL *con = mysql_init(NULL);
     load_file(&config, "tempUser.json");
 	parse_config();
