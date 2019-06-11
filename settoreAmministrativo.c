@@ -27,8 +27,7 @@ int menuSettoreAmministrativo(MYSQL* connessione){
 		
 		case 3: // Inserimento nuovo messaggio
 			flush_terminal_no_input
-			mysql_close(con);
-			exit(1);
+			setDaTrasferire(con);
 			break;
 		
 		case 4:
@@ -98,6 +97,52 @@ void getAssegnazioniPassate(MYSQL *connessione){
 	if(status){flushTerminal return; }
 	char *toPrint[4] = {"ID Assegnazione", "Data inizio", "Data fine", "ID Postazione"};
 	printResults(stmt, con, toPrint);
+}
+
+void setDaTrasferire(MYSQL *connessione){	
+	MYSQL *con = connessione;
+	MYSQL_STMT *stmt;
+	MYSQL_BIND ps_params[1];	// input parameter buffers
+	unsigned long length[1];	// Can do like that because all IN parameters have the same length
+	int status;
+
+	char nome[64];
+	printf("ID Dipendente: ");
+	getInput(64, nome, false);
+	length[0] = sizeof(int);
+	int idDipendente = atoi(nome);
+
+	stmt = mysql_stmt_init(con);
+	if (!stmt) {
+		printf("Could not initialize statement\n");
+		exit(1);
+	}
+
+	status = mysql_stmt_prepare(stmt, "CALL setUserDaTrasferire(?)", strlen("CALL setUserDaTrasferire(?)"));
+	test_stmt_error(stmt, status);
+
+	memset(ps_params, 0, sizeof(ps_params));
+
+	ps_params[0].buffer_type = MYSQL_TYPE_LONG;
+	ps_params[0].buffer = &idDipendente;
+	ps_params[0].buffer_length = sizeof(int);
+	ps_params[0].length = &length[0];
+	ps_params[0].is_null = 0;
+
+	status = mysql_stmt_bind_param(stmt, ps_params);
+	test_stmt_error(stmt, status);
+
+	status = mysql_stmt_execute(stmt);
+	test_stmt_error(stmt, status);
+
+	if(status){ 
+		flushTerminal
+		return; 
+	}
+
+	printf("\nUtente indicato come da trasferire correttamente!\n");
+	flushTerminal
+
 }
 
 void editMansione(MYSQL *connessione){	

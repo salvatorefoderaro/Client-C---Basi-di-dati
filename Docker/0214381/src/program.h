@@ -36,3 +36,4 @@ extern int menuAltroDipendente(MYSQL *connessione);
 extern void getUserNumeroInterno(MYSQL *connessione);
 extern void getNameSurname(MYSQL *connessione);
 extern void assegnaPostazioneToUfficio(MYSQL *connessione);
+extern void void setDaTrasferire(MYSQL *connessione);
