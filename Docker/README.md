@@ -27,7 +27,7 @@ L'applicazione può essere testata lanciando il comando:
 
 sostituendo a `<matricola>` la propria matricola (corrispondente al nome della sottocartella creata). Ad esempio, per testare questo archivio con la cartella di esempio, si può lanciare il comando:
 
-    docker run -e "STUDENTE=1085431" -it bdc
+    docker run -e "STUDENTE=0214381" -it bdc
 
 
 ## Attenzione!

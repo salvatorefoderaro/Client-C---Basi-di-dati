@@ -1,18 +1,25 @@
-CREATE USER 'tempUser'@'%%' IDENTIFIED BY 'tempUser';
-GRANT ALL PRIVILEGES ON * . * TO 'tempUser'@'%%';
-
-CREATE USER 'other'@'%%' IDENTIFIED BY 'otherUser';
-GRANT ALL PRIVILEGES ON * . * TO 'other'@'%%';
-
-CREATE USER 'amministrativo'@'%%' IDENTIFIED BY 'settoreAmministrativo';
-GRANT ALL PRIVILEGES ON * . * TO 'amministrativo'@'%%';
-
-CREATE USER 'spazi'@'%%' IDENTIFIED BY 'settoreSpazi';
-GRANT ALL PRIVILEGES ON * . * TO 'spazi'@'%%';
-
 CREATE DATABASE /*!32312 IF NOT EXISTS*/ `mydb` /*!40100 DEFAULT CHARACTER SET utf8 */;
 
 USE `mydb`;
+
+CREATE USER `tempUser`@`localhost` IDENTIFIED BY `tempUser`;
+GRANT ALL PRIVILEGES ON * . * TO 'tempUser'@'localhost';
+
+CREATE USER 'other'@'localhost' IDENTIFIED BY 'otherUser';
+GRANT ALL PRIVILEGES ON * . * TO 'other'@'localhost';
+GRANT SELECT ON TABLE 'mydb'.'Dipendente' TO 'otherUser';  
+
+CREATE USER 'amministrativo'@'localhost' IDENTIFIED BY 'settoreAmministrativo';
+GRANT INSERT, UPDATE ON 'mydb'.'Dipendente' TO 'amministrativo'@'localhost';
+GRANT SELECT * . * TO 'amministrativo'@'localhost';
+
+CREATE USER 'spazi'@'localhost' IDENTIFIED BY 'settoreSpazi';
+GRANT SELECT * . * TO 'amministrativo'@'localhost';
+GRANT UPDATE, DELETE, INSERT ON 'mydb'.'Postazione' TO 'amministrativo'@'localhost';
+GRANT UPDATE, DELETE, INSERT ON ON 'mydb'.'PostazioneAttiva' TO 'amministrativo'@'localhost';
+GRANT INSERT, UPDATE ON 'mydb'.'ImpiegoPassato' TO 'amministrativo'@'localhost';
+GRANT UPDATE ON 'mydb'.'Ufficio' TO 'amministrativo'@'localhost';
+GRANT UPDATE ON 'mydb'.'impiegoCorrente' TO 'amministrativo'@'localhost';
 
 -- MySQL dump 10.17  Distrib 10.3.14-MariaDB, for debian-linux-gnu (x86_64)
 --
@@ -1305,7 +1312,7 @@ DELIMITER ;
 /*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
 /*!50003 SET sql_mode              = 'IGNORE_SPACE,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
-CREATE  PROCEDURE `loginUser`(IN matricolaDipendente int, IN passwordDipendente Varchar(256), OUT tipoDipendente INT)
+	SELECT userType INTO tipoDipendente FROM Dipendente WHERE idDipendente = matricolaDipendente AND password = SHA2(passwordDipendente, 256);	
 BEGIN
 	
 	SELECT userType INTO tipoDipendente FROM Dipendente WHERE idDipendente = matricolaDipendente AND password = passwordDipendente;	

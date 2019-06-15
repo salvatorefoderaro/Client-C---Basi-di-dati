@@ -1,6 +1,5 @@
 #/bin/bash
 
-
 echo "Initializing DBMS..."
 MYSQL_ROOT_PASSWORD=bdc /docker-entrypoint.sh mysqld &> /dev/null  &
 
@@ -9,7 +8,7 @@ while ! mysqladmin ping -pbdc --silent; do
 done
 sleep 5
 
-cd $STUDENTE
+cd 0214381
 
 echo "Compiling application..."
 make
