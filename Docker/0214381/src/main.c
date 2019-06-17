@@ -4,7 +4,6 @@
 #include <mysql.h>
 #include "program.h"
 
-
 struct configuration conf;
 char nome[64];
 
@@ -26,8 +25,6 @@ int main(int argc, char **argv){
 	MYSQL *con = mysql_init(NULL);
     load_file(&config, "tempUser.json");
 	parse_config();
-
-	printf("\n1 - Effettua l'accesso al sistema\n2 - Termina programma\n\nScegli un opzione: ");	
 
 	if(con == NULL) {
 		fprintf(stderr, "Initilization error: %s\n", mysql_error(con));
