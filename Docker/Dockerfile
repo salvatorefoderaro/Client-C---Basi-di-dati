@@ -1,5 +1,5 @@
 FROM mariadb
-MAINTAINER Salvatore Foderaro <salvatore.foderaro@gmail.com>
+MAINTAINER Alessandro Pellegrini <pellegrini@diag.uniroma1.it>
 
 RUN mkdir -p /bdc
 WORKDIR /bdc
