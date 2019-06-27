@@ -47,7 +47,13 @@ CREATE TABLE `Dipendente` (
 -- Dumping data for table `Dipendente`
 --
 
-
+LOCK TABLES `Dipendente` WRITE;
+/*!40000 ALTER TABLE `Dipendente` DISABLE KEYS */;
+INSERT INTO `Dipendente` VALUES (1,2,'Giuseppe','Via Argada, 2','ufficio2@test.com','giuseppe@gmail.com','1995-04-10','Catanzaro','asd',1,'A',0);
+INSERT INTO `Dipendente` VALUES (2,2,'Francesco','Via Argada, 3','ufficio1@test.com','francesco@gmail.com','1996-04-11','Girifalco','fgh',2,'B',0);
+INSERT INTO `Dipendente` VALUES (3,2,'Salvatore','Via Argada, 4','ufficio2@test.com','salvatore@gmail.com','1995-04-12','Catanzaro','bbf',3,'C',0);
+/*!40000 ALTER TABLE `Dipendente` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
 /*!50003 SET @saved_col_connection = @@collation_connection */ ;
@@ -59,7 +65,9 @@ CREATE TABLE `Dipendente` (
 DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `mydb`.`DIPENDENTE_BEFORE_INSERT` BEFORE INSERT ON `Dipendente` FOR EACH ROW
 BEGIN
+
 	SET  NEW.password = SHA2(NEW.password, 256);
+       
 END */;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -1511,13 +1519,5 @@ GRANT EXECUTE ON PROCEDURE `mydb`.`userNameSurname` TO 'spazi';
 GRANT EXECUTE ON PROCEDURE `mydb`.`getUserNumeroInterno` TO 'spazi';
 
 FLUSH PRIVILEGES;
-
-LOCK TABLES `Dipendente` WRITE;
-/*!40000 ALTER TABLE `Dipendente` DISABLE KEYS */;
-INSERT INTO `Dipendente` VALUES (1,2,'Giuseppe','Via Argada, 2','ufficio2@test.com','giuseppe@gmail.com','1995-04-10','Catanzaro','688787D8FF144C502C7F5CFFAAFE2CC588D86079F9DE88304C26B0CB99CE91C6',1,'A',0);
-INSERT INTO `Dipendente` VALUES (2,2,'Francesco','Via Argada, 3','ufficio1@test.com','francesco@gmail.com','1996-04-11','Girifalco','36E0FD847D927D68475F32A94EFFF30812EE3CE87C7752973F4DD7476AA2E97E',2,'B',0);
-INSERT INTO `Dipendente` VALUES (3,2,'Salvatore','Via Argada, 4','ufficio2@test.com','salvatore@gmail.com','1995-04-12','Catanzaro','D11EBD8029C99EF0765D07D7F2C0733DBDD729E61A7CD4E82D50C7169C408FA5',3,'C',0);
-/*!40000 ALTER TABLE `Dipendente` ENABLE KEYS */;
-UNLOCK TABLES;
 
 -- Dump completed on 2019-06-15 20:54:07
